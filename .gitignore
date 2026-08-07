@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Large evaluation artifacts — never commit these
+outputs/
+results/
+results_new/
+scores/
+predict_videos/
+source_frames/
+dataset/
+*.mp4
+*.mkv
+*.webm
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+
+# LaTeX build products
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
