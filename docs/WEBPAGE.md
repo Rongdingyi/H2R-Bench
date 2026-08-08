@@ -43,14 +43,10 @@ python3 -m http.server 8000
 
 ## Before publishing: fill in the placeholders
 
-`index.html` still contains literal `ARXIV_ID` and `ORG` placeholders:
-
-- `https://arxiv.org/pdf/ARXIV_ID` and `https://arxiv.org/abs/ARXIV_ID` — the two hero buttons
-- `https://github.com/ORG/H2R-Bench` — the Code button
-- `https://huggingface.co/datasets/ORG/H2R-Bench` — the Dataset button
-- `arXiv:ARXIV_ID` inside the BibTeX block
-
-Drop the Code / Dataset buttons entirely if there is nothing public to point at yet.
+The Paper/arXiv and Hugging Face Papers buttons point at `2608.13049`; the Project Page
+button points at the published site, and the GitHub button points at the repository.
+The commented Dataset button still uses `https://huggingface.co/datasets/ORG/H2R-Bench`;
+un-comment it and set the organization once the dataset is public.
 
 ## Refreshing a figure
 

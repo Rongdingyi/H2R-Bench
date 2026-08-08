@@ -79,34 +79,6 @@
       margin-bottom: 0.35rem;
     }
 
-    .stat-strip {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      margin: 1.5rem 0 0.5rem;
-    }
-
-    .stat {
-      background: #fff;
-      border: 1px solid var(--h2r-line);
-      border-radius: 8px;
-      padding: 0.9rem 0.6rem;
-    }
-
-    .stat .num {
-      color: var(--h2r-accent);
-      display: block;
-      font-family: 'Google Sans', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .stat .lab {
-      color: var(--h2r-muted);
-      font-size: 0.9rem;
-    }
-
     .pipeline {
       display: grid;
       gap: 1rem;
@@ -288,10 +260,6 @@
         grid-template-columns: 1fr;
       }
 
-      .stat-strip {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
       .author-block {
         margin-right: 0.7rem;
       }
@@ -309,26 +277,25 @@
           <h2 class="subtitle is-5 venue">arXiv Preprint 2026</h2>
 
           <div class="is-size-5 publication-authors">
-            <span class="author-block">Dingyi Rong</span>
-            <span class="author-block">Yue Shi</span>
-            <span class="author-block">Chaofan Ma</span>
-            <span class="author-block">Jiezhang Cao</span>
-            <span class="author-block">Zongrui Wang</span><br>
-            <span class="author-block">Zeyu Zhang</span>
-            <span class="author-block">Yao Mu</span>
-            <span class="author-block">Guangtao Zhai</span>
-            <span class="author-block">Ning Liu</span>
+            <span class="author-block">Dingyi Rong<sup>1,2</sup></span>
+            <span class="author-block">Yue Shi<sup>2&dagger;</sup></span>
+            <span class="author-block">Chaofan Ma<sup>1&ddagger;</sup></span>
+            <span class="author-block">Jiezhang Cao<sup>1</sup></span>
+            <span class="author-block">Zongrui Wang<sup>1,2</sup></span><br>
+            <span class="author-block">Zeyu Zhang<sup>1,2</sup></span>
+            <span class="author-block">Yao Mu<sup>1,2</sup></span>
+            <span class="author-block">Guangtao Zhai<sup>1,2&dagger;</sup></span>
+            <span class="author-block">Ning Liu<sup>1&dagger;</sup></span>
           </div>
 
           <div class="is-size-5 publication-authors">
-            <span class="author-block">Shanghai Jiao Tong University</span>
+            <span><sup>1</sup>&nbsp;Shanghai Jiao Tong University&nbsp;&nbsp; <sup>2</sup>&nbsp;Shanghai Artificial Intelligence Laboratory</span>
           </div>
 
           <div class="column has-text-centered">
             <div class="publication-links">
-              <!-- TODO: replace ARXIV_ID once the paper is on arXiv -->
               <span class="link-block">
-                <a href="https://arxiv.org/pdf/ARXIV_ID"
+                <a href="https://arxiv.org/pdf/2608.13049"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                     <i class="fas fa-file-pdf"></i>
@@ -337,7 +304,7 @@
                 </a>
               </span>
               <span class="link-block">
-                <a href="https://arxiv.org/abs/ARXIV_ID"
+                <a href="https://arxiv.org/abs/2608.13049"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                     <i class="ai ai-arxiv"></i>
@@ -346,12 +313,30 @@
                 </a>
               </span>
               <span class="link-block">
+                <a href="https://huggingface.co/papers/2608.13049"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon" aria-hidden="true">
+                    <span class="huggingface-icon">&#129303;</span>
+                  </span>
+                  <span>Hugging Face Papers</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://rongdingyi.github.io/H2R-Bench/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-globe"></i>
+                  </span>
+                  <span>Project Page</span>
+                </a>
+              </span>
+              <span class="link-block">
                 <a href="https://github.com/Rongdingyi/H2R-Bench"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                     <i class="fab fa-github"></i>
                   </span>
-                  <span>Code</span>
+                  <span>GitHub</span>
                 </a>
               </span>
               <!-- TODO: uncomment once the dataset is published, and fill in the real URL.
@@ -368,6 +353,8 @@
             </div>
           </div>
 
+          <p class="is-size-6" style="color:#6b7280;">&dagger; Corresponding authors. &nbsp; &ddagger; Project lead.</p>
+
         </div>
       </div>
     </div>
@@ -380,8 +367,7 @@
       <img src="./static/images/overview.png" alt="Overview of H2R-Bench: source curation, native-interface generation, and transfer-aware evaluation">
       <h2 class="subtitle">
         <b>A robot-looking video is not a transferred demonstration.</b>
-        Given an egocentric human demonstration and a target embodiment, video world models are asked to generate the corresponding robot manipulation video.
-        Generic video benchmarks score both outputs highly, whereas H2R-Bench diagnoses transfer along four source-grounded axes &mdash;
+        Generic video benchmarks score both outputs highly; H2R-Bench diagnoses transfer along four source-grounded axes &mdash;
         <span style="color:#1d4ed8;font-weight:600;">goal</span>,
         <span style="color:#1d4ed8;font-weight:600;">action</span>,
         <span style="color:#b45309;font-weight:600;">functional contact</span>, and
@@ -398,38 +384,27 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Large-scale manipulation data is essential for robot learning, yet collecting robot demonstrations remains expensive and difficult to scale.
-            Meanwhile, abundant egocentric human manipulation videos provide rich behavioral experiences, but transferring them across embodiments remains challenging due to differences between human hands and robotic end-effectors.
-            Recent advances in video world models offer a promising pathway to synthesize robot-centric manipulation videos from human observations, while their cross-embodiment transfer capability remains largely unexplored.
-            Therefore, we introduce <b>H2R-Bench</b>, a benchmark for evaluating cross-embodiment human-to-robot manipulation video generation, where models transform egocentric human demonstrations into robot manipulation videos under specified embodiments.
-            Each benchmark instance contains a human demonstration video, target embodiment constraints, and source-grounded annotations covering task goals, action events, functional contacts, and object responses.
-            H2R-Bench evaluates generated videos through five dimensions, including goal-state completion, action-event completion, functional contact transfer, embodiment correctness, and general video quality.
-            We benchmark eleven state-of-the-art video generation models across six manipulation families and two robot embodiments.
-            Our evaluation reveals that current video world models remain limited in human-to-robot manipulation transfer: even leading models often fail in embodiment consistency, functional interaction, and task execution.
-            H2R-Bench provides a systematic diagnostic framework for evaluating whether video world models can bridge the human-to-robot embodiment gap and convert human manipulation observations into robot-centric training resources.
+            Robot learning needs large-scale manipulation data, yet robot demonstrations are expensive to collect, while egocentric human videos are abundant.
+            Video world models offer a possible bridge, but their cross-embodiment transfer ability is largely unmeasured.
+            We introduce <b>H2R-Bench</b>, a benchmark for <b>cross-embodiment human-to-robot manipulation video generation</b>: given an egocentric human demonstration and a target embodiment, a model must produce the corresponding robot manipulation video.
+            Each of the <b>240 cases</b> (120 sources &times; 2 embodiments) carries source-grounded annotations, and outputs are scored on five dimensions &mdash; goal state, action events, functional contact, embodiment correctness, and video quality.
+            Benchmarking <b>11 state-of-the-art models</b> over <b>6 manipulation families</b> shows that even leading systems fail at embodiment consistency, functional interaction, and task execution.
           </p>
         </div>
 
         <div class="key-points">
           <div class="key-point">
             <strong>Human &rarr; Robot, Not Text &rarr; Video</strong>
-            The first benchmark that conditions generation on a real egocentric human demonstration and a requested robot embodiment, and then asks whether the source manipulation actually survived the transfer.
+            Generation is conditioned on a real egocentric demonstration and a requested robot embodiment, then checked for whether the source manipulation survived the transfer.
           </div>
           <div class="key-point">
             <strong>Source-Grounded Annotations</strong>
-            Every case carries annotations derived from its own source clip: task goals, required action events, functional contact regions, manipulation modes, and expected object responses.
+            Task goals, required action events, functional contact regions, manipulation modes, and expected object responses &mdash; all derived from each case's own source clip.
           </div>
           <div class="key-point">
             <strong>Quality &ne; Transfer Validity</strong>
-            Across 22 model&ndash;embodiment pairs, generic video quality and H2RCore are almost rank-independent (Spearman <i>&rho;</i> = 0.14): polished clips routinely fail the transfer.
+            Across 22 model&ndash;embodiment pairs, video quality and H2RCore are almost rank-independent (Spearman <i>&rho;</i> = 0.14): polished clips routinely fail the transfer.
           </div>
-        </div>
-
-        <div class="stat-strip">
-          <div class="stat"><span class="num">120</span><span class="lab">egocentric source clips</span></div>
-          <div class="stat"><span class="num">240</span><span class="lab">transfer cases</span></div>
-          <div class="stat"><span class="num">11</span><span class="lab">video generation models</span></div>
-          <div class="stat"><span class="num">6&times;2</span><span class="lab">task families &times; embodiments</span></div>
         </div>
       </div>
     </div>
@@ -444,14 +419,10 @@
         <h2 class="title is-3">Why Existing Video Benchmarks Miss the Transfer</h2>
         <div class="content has-text-justified">
           <p>
-            A generated robot video is an intermediate representation of a target robot execution conditioned on a human demonstration.
-            The key challenge is therefore not producing a visually plausible robot video, but <i>preserving the manipulation evidence</i> in the source demonstration while adapting the execution to a different embodiment.
-            Frame-level realism and temporal coherence say nothing about this: a coherent clip can retain human hands, realize the wrong end-effector, or show object changes unsupported by any visible robot interaction.
-          </p>
-          <p>
-            Existing benchmarks are open-domain, text-conditioned, or robot-centric.
-            None of them takes an egocentric human-hand video as source evidence and checks whether it was retargeted to a different robot embodiment,
-            so they miss exactly the failures that matter for robot learning: residual human hands, incorrect target embodiment, broken bimanual roles, missing contact causality, and inconsistent object-state transitions.
+            A generated robot video is an intermediate representation of a target robot execution.
+            What matters is not visual plausibility but whether the <i>manipulation evidence</i> in the source demonstration is preserved while the execution is adapted to a different embodiment.
+            A coherent clip can still retain human hands, realize the wrong end-effector, or show object changes unsupported by any visible robot interaction.
+            Existing benchmarks are open-domain, text-conditioned, or robot-centric &mdash; none takes an egocentric human-hand video as source evidence and checks whether it was retargeted to a different robot embodiment.
           </p>
         </div>
 
@@ -509,10 +480,9 @@
           </table>
         </div>
         <p class="figure-caption">
-          Comparison of H2R-Bench and existing video-generation benchmarks across evaluation capabilities.
-          &ldquo;I2V&rdquo;, &ldquo;RV&rdquo;, and &ldquo;H2R&rdquo; denote image-to-video generation, robot-video evaluation, and human-to-robot transfer.
-          Evaluation dimensions include visual quality, goal completion, action completion, functional contact transfer, and embodiment consistency.
-          <span class="check">&#10003;</span>, <span class="partial">&#9651;</span>, and <span class="cross">&times;</span> indicate full, partial, and no support.
+          Comparison with existing video-generation benchmarks.
+          &ldquo;I2V&rdquo;, &ldquo;RV&rdquo;, &ldquo;H2R&rdquo; = image-to-video generation, robot-video evaluation, human-to-robot transfer;
+          <span class="check">&#10003;</span> / <span class="partial">&#9651;</span> / <span class="cross">&times;</span> = full / partial / no support.
         </p>
       </div>
     </div>
@@ -527,9 +497,9 @@
         <h2 class="title is-3">What a H2R-Bench Case Looks Like</h2>
         <div class="content has-text-justified">
           <p>
-            Each case is a triple <i>(V<sup>h</sup>, e, p)</i>: a 5-second egocentric human source video, a target embodiment, and a generation prompt that names the task goal and target embodiment and asks the model to preserve the source scene, objects, and interaction.
-            The prompt deliberately contains no evaluation weights, evidence-frame indices, or per-metric checks &mdash; those live in a separate annotation used only for scoring.
-            We do not require pose or trajectory imitation: a parallel-jaw gripper and a dexterous hand may solve the task differently, as long as the new strategy stays compatible with the requested morphology and the source task.
+            Each case is a triple <i>(V<sup>h</sup>, e, p)</i>: a 5-second egocentric human source video, a target embodiment, and a prompt naming the task goal and embodiment.
+            The prompt carries no evaluation weights or per-metric checks &mdash; those live in a separate scoring annotation.
+            Pose or trajectory imitation is not required: a gripper and a dexterous hand may solve the task differently, as long as the strategy fits the requested morphology and the source task.
           </p>
         </div>
 
@@ -537,30 +507,30 @@
           <div class="pipeline-step">
             <span class="tag">Step 1</span>
             <h3 class="title is-5">Curate</h3>
-            <p>120 EgoDex test-split clips with visible task-relevant entities, interactions, and state changes, evenly spread over six manipulation families (20 sources each), paired with two target embodiments to give 240 transfer cases.</p>
+            <p>120 EgoDex test-split clips with visible entities, interactions, and state changes, evenly spread over six manipulation families (20 each), paired with two target embodiments &rarr; 240 transfer cases.</p>
           </div>
           <div class="pipeline-step">
             <span class="tag">Step 2</span>
             <h3 class="title is-5">Annotate</h3>
-            <p>Per clip: initial and final states, relevant objects and tools, required action events, and source-side contact evidence; per embodiment: functional contact regions, manipulation modes, expected object responses, and bimanual roles. All annotations are manually verified against the source video.</p>
+            <p>Per clip: initial/final states, objects and tools, required action events, source-side contact evidence. Per embodiment: functional contact regions, manipulation modes, expected object responses, bimanual roles. All manually verified.</p>
           </div>
           <div class="pipeline-step">
             <span class="tag">Step 3</span>
             <h3 class="title is-5">Generate</h3>
-            <p>Native-interface protocol: video-conditioned models receive the full source clip, frame-conditioned models receive ordered source frames up to their interface limit. No target-robot reference image in the main setting &mdash; the embodiment is specified in text only.</p>
+            <p>Native-interface protocol: video-conditioned models get the full source clip, frame-conditioned models get ordered frames up to their interface limit. No robot reference image in the main setting &mdash; embodiment is text-only.</p>
           </div>
         </div>
 
         <div class="content has-text-justified" style="margin-top:1.5rem;">
           <p>
-            <b>Six manipulation families.</b>
-            F1 rigid-object transport or rearrangement &middot;
-            F2 articulated-mechanism actuation &middot;
-            F3 insertion or attachment &middot;
-            F4 deformable-object configuration &middot;
-            F5 bulk-material transfer or mixing &middot;
+            <b>Six families:</b>
+            F1 rigid transport/rearrangement &middot;
+            F2 articulated actuation &middot;
+            F3 insertion/attachment &middot;
+            F4 deformable configuration &middot;
+            F5 bulk-material transfer/mixing &middot;
             F6 surface or material change.
-            <b>Two target embodiments:</b> a parallel-jaw gripper and a dexterous hand.
+            <b>Two embodiments:</b> parallel-jaw gripper, dexterous hand.
           </p>
         </div>
       </div>
@@ -576,9 +546,9 @@
         <h2 class="title is-3">Five Dimensions, One Transfer Score</h2>
         <div class="content has-text-justified">
           <p>
-            M1&ndash;M4 measure whether the source manipulation was transferred correctly; M5 separately measures task-agnostic video quality.
-            For M1&ndash;M4, three MLLM judges (Gemini 3.5 Flash, Qwen3.7-Plus, GPT-5.4) independently assess the prescribed visual evidence on a shared 0&ndash;4 rubric, where 0 means absent or contradictory evidence and 4 means clear and complete satisfaction.
-            Judge scores are normalized to [0, 1] and averaged. Every metric sees 25 uniformly sampled frames, so all models are judged with the same evidence budget.
+            M1&ndash;M4 measure whether the source manipulation was transferred correctly; M5 measures task-agnostic video quality.
+            For M1&ndash;M4, three MLLM judges (Gemini 3.5 Flash, Qwen3.7-Plus, GPT-5.4) independently score the prescribed visual evidence on a shared 0&ndash;4 rubric; scores are normalized to [0,&nbsp;1] and averaged.
+            Every metric sees 25 uniformly sampled frames, so all models are judged on the same evidence budget.
           </p>
         </div>
 
@@ -586,27 +556,27 @@
           <div class="metric-item">
             <span class="weight">weight 0.15</span>
             <span class="mid">M1</span><strong>Goal-State Completion</strong>
-            <p>Weighted predicates describing the final state required for success &mdash; a spatial or containment relation, a mechanism state, an attachment, a deformation, a material distribution, or a surface change. The sequence gives context; the final frames decide.</p>
+            <p>Weighted predicates over the final state required for success &mdash; spatial or containment relation, mechanism state, attachment, deformation, material distribution, surface change. The sequence gives context; the final frames decide.</p>
           </div>
           <div class="metric-item">
             <span class="weight">weight 0.15</span>
             <span class="mid">M2</span><strong>Action-Event Completion</strong>
-            <p>How clearly the required events are carried out &mdash; grasping, inserting, releasing, pouring, wiping, folding. Concerns whether the operations occur, not whether the robot reproduces the human pose, trajectory, or timing.</p>
+            <p>How clearly the required events happen &mdash; grasping, inserting, releasing, pouring, wiping, folding. Whether the operations occur, not whether the robot reproduces the human pose or timing.</p>
           </div>
           <div class="metric-item">
             <span class="weight">weight 0.30</span>
             <span class="mid">M3</span><strong>Functional Contact Transfer</strong>
-            <p>Judges compare 25 source frames against 25 generated frames plus a source-derived contact specification: contacted functional region, whether contact is visibly established, manipulation mode, whether the object response follows, and feasibility for the requested embodiment. A different grasp is fine if the contact serves the same function.</p>
+            <p>25 source frames vs. 25 generated frames plus a source-derived contact spec: contacted functional region, whether contact is visibly established, manipulation mode, whether the object responds, feasibility for the requested embodiment. A different grasp is fine if the contact serves the same function.</p>
           </div>
           <div class="metric-item">
             <span class="weight">weight 0.30</span>
             <span class="mid">M4</span><strong>Embodiment Correctness</strong>
-            <p>Separates robot presence from morphology: is a robot visible, do human hands remain, is the requested embodiment class used, is the end-effector type correct, is the structure temporally consistent. If no robot is present or a human performs the main manipulation, the score is zero.</p>
+            <p>Separates robot presence from morphology: robot visible, human hands gone, requested embodiment class, correct end-effector type, temporally consistent structure. Zero if no robot is present or a human performs the main manipulation.</p>
           </div>
           <div class="metric-item" style="grid-column: 1 / -1;">
             <span class="weight">weight 0.10</span>
             <span class="mid">M5</span><strong>Video Quality</strong>
-            <p>Computed without any task annotation. Averages four normalized components: imaging quality (MUSIQ), aesthetic quality (LAION linear predictor over CLIP ViT-L/14 features), temporal stability from adjacent-frame differences, and motion smoothness from AMT-S midpoint interpolation error.</p>
+            <p>No task annotation used. Averages four normalized components: imaging quality (MUSIQ), aesthetic quality (LAION predictor over CLIP ViT-L/14), temporal stability, and motion smoothness (AMT-S interpolation error).</p>
           </div>
         </div>
 
@@ -614,9 +584,8 @@
           H2RCore = 100 &times; (0.15&thinsp;S<sub>goal</sub> + 0.15&thinsp;S<sub>action</sub> + <b>0.30&thinsp;S<sub>contact</sub></b> + <b>0.30&thinsp;S<sub>emb</sub></b> + 0.10&thinsp;S<sub>video</sub>)
         </div>
         <p class="figure-caption">
-          Contact and embodiment jointly account for 60% of the score: valid transfer requires both a functionally supported interaction and the requested robot morphology, and equal weights avoid privileging one over the other.
-          Goal and action preserve the source task but neither is sufficient &mdash; a human-led or wrong-embodiment video can still show the correct outcome and actions.
-          Video quality contributes 0.10, so visual polish cannot substantially compensate for contact or embodiment failures.
+          Contact and embodiment jointly carry 60% of the score: valid transfer needs both a functionally supported interaction and the requested morphology.
+          Goal and action preserve the source task but neither is sufficient, and video quality contributes only 0.10 &mdash; visual polish cannot compensate for contact or embodiment failures.
         </p>
       </div>
     </div>
@@ -632,8 +601,8 @@
         <div class="content has-text-justified">
           <p>
             All 11 models are evaluated on the 240 transfer cases through their native source-conditioning interfaces.
-            The three video-conditioned systems occupy the top positions; among them goal and action scores are similar, and almost all of the separation comes from contact transfer and embodiment correctness.
-            Below that, the frame-conditioned group collapses: several models retain high goal, action, and video-quality scores while their embodiment score falls to near zero.
+            The three video-conditioned systems take the top positions, and almost all of their separation comes from contact transfer and embodiment correctness.
+            Below them the frame-conditioned group collapses: several models keep high goal, action, and quality scores while embodiment falls to near zero.
           </p>
         </div>
 
@@ -713,28 +682,26 @@
         </div>
         <p class="figure-caption">
           <b>Main-evaluation results by target embodiment.</b>
-          M1&ndash;M5 measure goal completion, action completion, contact transfer, embodiment correctness, and video quality; H2RCore aggregates all five on a 0&ndash;100 scale.
-          Rows are ordered by the sum of the two H2RCore scores within each conditioning group.
-          <b>Bold</b> and <span class="second">underlined</span> entries mark the best and second-best result in each column.
+          M1&ndash;M5 = goal completion, action completion, contact transfer, embodiment correctness, video quality; H2RCore aggregates all five on 0&ndash;100.
+          <b>Bold</b> / <span class="second">underlined</span> mark the best and second-best per column.
         </p>
 
         <div class="analysis-grid">
           <div class="analysis-item">
             <strong>Recognizing the task is not transferring it.</strong>
-            Veo 3.1 attains the best gripper goal score (0.725) and a 0.816 hand action score, yet its embodiment scores are only 0.100 and 0.227.
-            The task stays recognizable even when the requested robot never appears.
+            Veo 3.1 has the best gripper goal score (0.725) and a 0.816 hand action score, yet embodiment is only 0.100 / 0.227 &mdash; the task stays recognizable even when the requested robot never appears.
           </div>
           <div class="analysis-item">
             <strong>The prettiest video is near the bottom.</strong>
-            HunyuanVideo 1.5-I2V has the highest video quality for both targets (0.806 / 0.808) but contact stays near 0.185 and embodiment near zero &mdash; last place on H2RCore.
+            HunyuanVideo 1.5-I2V leads video quality for both targets (0.806 / 0.808) but contact stays near 0.185 and embodiment near zero &mdash; last on H2RCore.
           </div>
           <div class="analysis-item">
-            <strong>The top of the board is tight but consistent.</strong>
-            Seedance's paired H2RCore lead over Wan2.7 is +0.79 with a 95% CI of [+0.08, +1.48] for the gripper and +1.52 with [+0.92, +2.16] for the hand; the gaps to Kling-V3 are farther from zero.
+            <strong>The top is tight but consistent.</strong>
+            Seedance's paired lead over Wan2.7 is +0.79 (95% CI [+0.08, +1.48]) for the gripper and +1.52 ([+0.92, +2.16]) for the hand.
           </div>
           <div class="analysis-item">
             <strong>Sparse frames cannot replace the source video.</strong>
-            Replacing Seedance's full source clip with nine ordered frames preserves final-state and broad action evidence, but H2RCore drops 27.6 points for the gripper and 41.4 for the hand while video quality moves by less than 0.02.
+            Replacing Seedance's full clip with nine ordered frames drops H2RCore by 27.6 (gripper) and 41.4 (hand) while video quality moves less than 0.02.
           </div>
         </div>
       </div>
@@ -752,8 +719,8 @@
           <img src="./static/images/m5_vs_h2rcore.png" alt="VBench-based video quality versus H2RCore across 22 model-embodiment pairs">
           <p class="figure-caption">
             <b>Video quality versus H2RCore.</b>
-            Across 22 model&ndash;embodiment pairs, video quality lies in a narrow 0.73&ndash;0.81 band while H2RCore spans 30.0 to 84.6, and their rank association is weak (Spearman <i>&rho;</i> = 0.14).
-            HunyuanVideo 1.5-I2V leads on video quality but sits near the bottom of H2RCore, whereas Mitty-EPIC14B has the lowest video quality yet substantially stronger transfer scores.
+            Across 22 model&ndash;embodiment pairs, video quality stays in a narrow 0.73&ndash;0.81 band while H2RCore spans 30.0 to 84.6, and their rank association is weak (Spearman <i>&rho;</i> = 0.14).
+            HunyuanVideo 1.5-I2V leads on quality but sits near the bottom on H2RCore; Mitty-EPIC14B is the reverse.
           </p>
         </div>
 
@@ -761,9 +728,16 @@
           <img src="./static/images/diagnostic_failures.png" alt="Failure-type rates derived from structured M2-M4 diagnostics">
           <p class="figure-caption">
             <b>Where the transfers break.</b>
-            Failure-type rates derived from the structured M2&ndash;M4 diagnostics on the 120-source evaluation set; a failure is recorded when the judge-averaged diagnostic component falls below 0.5, and categories are non-exclusive because one generation can violate embodiment, contact, and action requirements at once.
-            Human-led manipulation and contact-region mismatch dominate frame-conditioned outputs, while end-effector mismatch remains common for the parallel-jaw gripper even among stronger models.
-            M3 additionally treats source-scene or task-entity substitution as a hard failure: generic-looking contact in a different scene is not contact transfer.
+            Failure-type rates from the structured M2&ndash;M4 diagnostics; a failure is recorded when the judge-averaged component falls below 0.5, and categories are non-exclusive.
+            Human-led manipulation and contact-region mismatch dominate frame-conditioned outputs, while end-effector mismatch stays common for the gripper even among stronger models.
+          </p>
+        </div>
+
+        <div class="content has-text-justified" style="margin-top:1.5rem;">
+          <img src="./static/images/task_attribute_breakdown.png" alt="Per-attribute breakdown across task families">
+          <p class="figure-caption">
+            <b>Attribute-level breakdown across task families.</b>
+            Scores decompose per manipulation attribute, showing which requirements of a family the models satisfy and which they systematically miss.
           </p>
         </div>
       </div>
@@ -914,7 +888,7 @@
     <pre><code>@article{rong2026h2rbench,
   title={H2R-Bench: Benchmarking Human-to-Robot Manipulation Video Generation in World Models},
   author={Rong, Dingyi and Shi, Yue and Ma, Chaofan and Cao, Jiezhang and Wang, Zongrui and Zhang, Zeyu and Mu, Yao and Zhai, Guangtao and Liu, Ning},
-  journal={arXiv preprint arXiv:ARXIV_ID},
+  journal={arXiv preprint arXiv:2608.13049},
   year={2026}
 }</code></pre>
   </div>

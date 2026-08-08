@@ -2,27 +2,28 @@
 
 **Benchmarking Human-to-Robot Manipulation Video Generation in World Models**
 
-Dingyi Rong, Yue Shi, Chaofan Ma, Jiezhang Cao, Zongrui Wang,
-Zeyu Zhang, Yao Mu, Guangtao Zhai, Ning Liu
+Dingyi Rong<sup>1,2</sup>, Yue Shi<sup>2&dagger;</sup>, Chaofan Ma<sup>1&ddagger;</sup>,
+Jiezhang Cao<sup>1</sup>, Zongrui Wang<sup>1,2</sup>, Zeyu Zhang<sup>1,2</sup>,
+Yao Mu<sup>1,2</sup>, Guangtao Zhai<sup>1,2&dagger;</sup>, Ning Liu<sup>1&dagger;</sup>
 
-Shanghai Jiao Tong University
+<sup>1</sup>&nbsp;Shanghai Jiao Tong University&nbsp;&nbsp; <sup>2</sup>&nbsp;Shanghai Artificial Intelligence Laboratory
 
-[Project page](https://rongdingyi.github.io/H2R-Bench/) &middot;
-Paper (arXiv, coming soon)
+<sup>&dagger;</sup>&nbsp;Corresponding authors.&nbsp;&nbsp; <sup>&ddagger;</sup>&nbsp;Project lead.
+
+[![Project Page](https://img.shields.io/badge/Project-Page-5b9a22?logo=googlechrome&logoColor=white&labelColor=555555)](https://rongdingyi.github.io/H2R-Bench/)
+[![Paper](https://img.shields.io/badge/Paper-PDF-d64545?logo=adobeacrobatreader&logoColor=white&labelColor=555555)](https://arxiv.org/pdf/2608.13049)
+[![arXiv](https://img.shields.io/badge/arXiv-2608.13049-b31b1b?logo=arxiv&logoColor=white&labelColor=555555)](https://arxiv.org/abs/2608.13049)
+[![Hugging Face Papers](https://img.shields.io/badge/Hugging%20Face-Papers-FFD21E?logo=huggingface&logoColor=FFD21E&labelColor=555555)](https://huggingface.co/papers/2608.13049)
+[![GitHub](https://img.shields.io/badge/GitHub-H2R--Bench-1683bd?logo=github&logoColor=white&labelColor=555555)](https://github.com/Rongdingyi/H2R-Bench)
 
 ---
 
 ## About
 
-Large-scale manipulation data is essential for robot learning, yet collecting robot
-demonstrations remains expensive and difficult to scale. Egocentric human manipulation
-videos are abundant, but transferring them across embodiments is hard because human hands
-and robotic end-effectors differ. Video world models offer a possible bridge — H2R-Bench
+Large-scale manipulation data is essential for robot learning, yet collecting robot demonstrations remains expensive and difficult to scale. Egocentric human manipulation videos are abundant, but transferring them across embodiments is hard because human hands and robotic end-effectors differ. Video world models offer a possible bridge — H2R-Bench
 asks whether they actually cross it.
 
-Given an egocentric human demonstration and a target robot embodiment, a model must
-generate the corresponding robot manipulation video. H2R-Bench then scores that video
-along five dimensions:
+Given an egocentric human demonstration and a target robot embodiment, a model must generate the corresponding robot manipulation video. H2R-Bench then scores that video along five dimensions:
 
 | | Metric | Weight |
 |---|---|---|
@@ -77,7 +78,7 @@ Evaluation code and benchmark annotations are not in this repository yet.
 @article{rong2026h2rbench,
   title={H2R-Bench: Benchmarking Human-to-Robot Manipulation Video Generation in World Models},
   author={Rong, Dingyi and Shi, Yue and Ma, Chaofan and Cao, Jiezhang and Wang, Zongrui and Zhang, Zeyu and Mu, Yao and Zhai, Guangtao and Liu, Ning},
-  journal={arXiv preprint arXiv:ARXIV_ID},
+  journal={arXiv preprint arXiv:2608.13049},
   year={2026}
 }
 ```
