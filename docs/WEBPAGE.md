@@ -1,67 +1,60 @@
 # H2R-Bench project page
 
-Static project page for **H2R-Bench: Benchmarking Human-to-Robot Manipulation Video
-Generation in World Models**.
+Static project page for **H2R-Bench: Benchmarking Human-to-Robot Manipulation
+Video Generation in World Models**.
 
-Built the same way as https://zhenjiemao.github.io/ReRe/ — a single hand-written
-`index.html` on the [Nerfies](https://github.com/nerfies/nerfies.github.io) academic
-project-page template: Bulma CSS + Font Awesome + Academicons, no build step, no Jekyll,
-no framework. All page-specific styling lives in one `<style>` block in the `<head>`.
+The site is custom, dependency-free HTML/CSS/JavaScript. It does not use Bulma,
+jQuery, a carousel package, Jekyll, or a framework, and it has no build step.
 
-## Layout
+## Structure
 
-```
-web/
-├── index.html                 the whole page
-├── .nojekyll                  tell GitHub Pages to serve files as-is
+```text
+docs/
+├── index.html                 page content, metadata, tables, and figures
+├── .nojekyll                  GitHub Pages passthrough marker
 └── static/
-    ├── css/                   bulma, bulma-carousel, bulma-slider, fontawesome, index.css
-    ├── js/                    jquery is loaded from a CDN; the rest are local
-    └── images/                figures exported from papers/Figures/
+    ├── css/index.css          complete visual and responsive system
+    ├── js/index.js            navigation, active section, BibTeX copy
+    └── images/
+        ├── h2r/               optimized paper figures
+        ├── favicon.png
+        └── og-h2r.jpg         social preview derived from the paper overview
 ```
 
-`static/images/` currently holds: `overview.png` (teaser), `m5_vs_h2rcore.png`,
-`diagnostic_failures.png`, `taskwise_h2rcore.png`, `human_mllm_spearman.png`,
-`qualitative.png`, `human_eval_interface.png`, `task_attribute_breakdown.png`.
-All numbers in the leaderboard table were copied from
-`papers/H2RBench_arxiv.tex` (`tab:main_results_by_embodiment`) and verified against it,
-including the bold / underlined best and second-best marks.
+The visual design mirrors the benchmark rather than a generic paper template:
+orange denotes source/contact evidence, cyan denotes robot/verified evidence,
+and the information flow follows Observe → Retarget → Verify. The page includes
+the paper's motivation, benchmark comparison, pipeline, 120-scene coverage,
+metric design, complete leaderboard, embodiment/task diagnostics, matched
+source-conditioning ablation, qualitative examples, human alignment, and scope.
+
+## Responsive behavior
+
+Layouts adapt at 1120, 920, 620, and 390 px. Navigation becomes a keyboard- and
+touch-friendly menu; buttons and cards reflow; leaderboard and benchmark tables
+support inertial horizontal scrolling; information-dense figures can be panned
+at a readable scale instead of being shrunk into illegibility. Reduced-motion
+preferences are respected.
 
 ## Preview locally
 
-```bash
-cd web
-python3 -m http.server 8000
-# open http://localhost:8000
-```
-
-## Publish on GitHub Pages
-
-1. Push the contents of this directory to a repo — either as the repo root of
-   `<user>.github.io`, or to a `gh-pages` branch, or to `docs/` on `main`.
-2. Settings → Pages → pick that branch/folder.
-
-## Before publishing: fill in the placeholders
-
-The Paper/arXiv and Hugging Face Papers buttons point at `2608.13049`; the Project Page
-button points at the published site, and the GitHub button points at the repository.
-The commented Dataset button still uses `https://huggingface.co/datasets/ORG/H2R-Bench`;
-un-comment it and set the organization once the dataset is public.
-
-## Refreshing a figure
-
-Figures are PNG exports of the paper's assets. `papers/Figures/` already ships a `.png`
-next to most `.pdf`s; for PDF-only ones:
+From the repository root:
 
 ```bash
-pdftocairo -png -r 150 -singlefile papers/Figures/qualitative.pdf web/static/images/qualitative
+python3 -m http.server 8000 --directory docs
 ```
 
-## Not yet included
+Open `http://localhost:8000`.
 
-- A **teaser comparison figure** matching `fig:h2r_motivation` in the paper — that figure
-  (`Figures/titu`) does not exist in the repo yet, so the page uses `overview.png` as its
-  hero image instead.
-- **Video samples.** The template's `bulma-carousel` is already loaded, so a
-  `results-carousel` of source/generated `<video>` pairs can be added without new
-  dependencies. Generated clips live under `predict_videos/`.
+## Paper-sourced assets
+
+Web figures in `static/images/h2r/` are optimized exports from the arXiv source
+package. Keep captions, metrics, model names, and numerical results synchronized
+with the paper when refreshing an asset. Use a lossless/high-resolution render
+as the intermediate, then export a browser-friendly WebP. The social image is
+the paper overview, resized as JPEG for broad unfurl compatibility.
+
+## Publishing
+
+GitHub Pages should serve the `docs/` folder on `main`. The canonical, Open
+Graph, arXiv, Hugging Face, and repository URLs are already set in `index.html`.
