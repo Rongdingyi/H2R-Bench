@@ -22,6 +22,9 @@ dataset/
 *.pth
 *.ckpt
 
+# Project-page demo clips are intentionally tracked
+!docs/static/videos/*.mp4
+
 # LaTeX build products
 *.aux
 *.log
