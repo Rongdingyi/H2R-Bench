@@ -24,6 +24,7 @@ dataset/
 
 # Project-page demo clips are intentionally tracked
 !docs/static/videos/*.mp4
+!docs/static/videos/gallery/*.mp4
 
 # LaTeX build products
 *.aux

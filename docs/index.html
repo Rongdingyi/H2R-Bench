@@ -144,6 +144,7 @@
           data-site-nav
         >
           <a href="#motivation">Motivation</a>
+          <a href="#gallery">Gallery</a>
           <a href="#benchmark">Benchmark</a>
           <a href="#metrics">Metrics</a>
           <a href="#results">Results</a>
@@ -342,12 +343,23 @@
           </div>
 
           <figure class="paper-figure motivation-figure">
-            <img
-              src="./static/images/h2r/motivation.webp"
-              width="1434"
-              height="1380"
-              alt="A human plug-insertion demonstration and two generated outputs that look plausible, while H2R-Bench distinguishes the output with correct robot action, transfer, and embodiment."
-            />
+            <button
+              class="figure-button"
+              type="button"
+              data-lightbox="./static/images/h2r/motivation.webp"
+              data-lightbox-alt="A human plug-insertion demonstration and two generated outputs that look plausible, while H2R-Bench distinguishes the output with correct robot action, transfer, and embodiment."
+              aria-label="Open larger view of this figure"
+            >
+              <img
+                src="./static/images/h2r/motivation.webp"
+                width="1434"
+                height="1380"
+                alt="A human plug-insertion demonstration and two generated outputs that look plausible, while H2R-Bench distinguishes the output with correct robot action, transfer, and embodiment."
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+            </button>
             <figcaption>
               <strong
                 >Same apparent quality, different transfer validity.</strong
@@ -458,6 +470,612 @@
               </p>
             </li>
           </ul>
+        </div>
+      </section>
+
+      <section
+        class="section section--tint"
+        id="gallery"
+        aria-labelledby="gallery-title"
+      >
+        <div class="page-shell">
+          <header class="section-heading">
+            <div>
+              <p class="section-kicker">Transfer gallery</p>
+              <h2 id="gallery-title">
+                One demonstration, three very different transfers
+              </h2>
+            </div>
+            <p>
+              Every tab keeps the same human source clip and only swaps the
+              generator. Badges are per-clip H2RCore on the dexterous hand: a clean
+              looking clip can still lose the demonstrated function.
+            </p>
+          </header>
+          <div class="gallery">
+            <div class="gallery-tabs" data-gallery-tabs aria-label="Task family">
+              <button
+                class="gallery-tab is-active"
+                type="button"
+                data-gallery-tab="f1"
+              >
+                <span class="gallery-tab__family">F1</span>
+                <span class="gallery-tab__label">Rigid transport</span>
+              </button>
+              <button
+                class="gallery-tab"
+                type="button"
+                data-gallery-tab="f2"
+              >
+                <span class="gallery-tab__family">F2</span>
+                <span class="gallery-tab__label">Articulated change</span>
+              </button>
+              <button
+                class="gallery-tab"
+                type="button"
+                data-gallery-tab="f3"
+              >
+                <span class="gallery-tab__family">F3</span>
+                <span class="gallery-tab__label">Insertion</span>
+              </button>
+              <button
+                class="gallery-tab"
+                type="button"
+                data-gallery-tab="f4"
+              >
+                <span class="gallery-tab__family">F4</span>
+                <span class="gallery-tab__label">Deformable</span>
+              </button>
+              <button
+                class="gallery-tab"
+                type="button"
+                data-gallery-tab="f5"
+              >
+                <span class="gallery-tab__family">F5</span>
+                <span class="gallery-tab__label">Bulk transfer</span>
+              </button>
+              <button
+                class="gallery-tab"
+                type="button"
+                data-gallery-tab="f6"
+              >
+                <span class="gallery-tab__family">F6</span>
+                <span class="gallery-tab__label">Surface change</span>
+              </button>
+            </div>
+            <div class="gallery-panel" data-gallery-panel="f1">
+              <p class="gallery-caption">
+                <strong>Put away &amp; set up a board game</strong>
+                Pick up scattered game pieces and return them to the box.
+              </p>
+              <div class="gallery-grid">
+                <figure class="gallery-item gallery-item--source">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f1-human.mp4"
+                      poster="./static/videos/gallery/f1-human.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      autoplay
+                      aria-label="Human demonstration: Put away and set up a board game"
+                    ></video>
+                    <span class="gallery-badge gallery-badge--source">Source</span>
+                  </div>
+                  <figcaption>
+                    <strong>Human demonstration</strong>
+                    <span>Egocentric evidence of what happened</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f1-seedance.mp4"
+                      poster="./static/videos/gallery/f1-seedance.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      autoplay
+                      aria-label="Seedance 2.0 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-strong">89.7</span>
+                  </div>
+                  <figcaption>
+                    <strong>Seedance 2.0</strong>
+                    <span>H2RCore 89.7</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f1-veo.mp4"
+                      poster="./static/videos/gallery/f1-veo.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      autoplay
+                      aria-label="Veo 3.1 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-mid">59.2</span>
+                  </div>
+                  <figcaption>
+                    <strong>Veo 3.1</strong>
+                    <span>H2RCore 59.2</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f1-wan22.mp4"
+                      poster="./static/videos/gallery/f1-wan22.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      autoplay
+                      aria-label="Wan2.2 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-weak">22.4</span>
+                  </div>
+                  <figcaption>
+                    <strong>Wan2.2</strong>
+                    <span>H2RCore 22.4</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="gallery-panel" data-gallery-panel="f2" hidden>
+              <p class="gallery-caption">
+                <strong>Stock &amp; unstock a fridge</strong>
+                Open the door, move containers in and out, close it again.
+              </p>
+              <div class="gallery-grid">
+                <figure class="gallery-item gallery-item--source">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f2-human.mp4"
+                      poster="./static/videos/gallery/f2-human.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Human demonstration: Stock and unstock a fridge"
+                    ></video>
+                    <span class="gallery-badge gallery-badge--source">Source</span>
+                  </div>
+                  <figcaption>
+                    <strong>Human demonstration</strong>
+                    <span>Egocentric evidence of what happened</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f2-seedance.mp4"
+                      poster="./static/videos/gallery/f2-seedance.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Seedance 2.0 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-strong">91.2</span>
+                  </div>
+                  <figcaption>
+                    <strong>Seedance 2.0</strong>
+                    <span>H2RCore 91.2</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f2-veo.mp4"
+                      poster="./static/videos/gallery/f2-veo.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Veo 3.1 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-mid">66.2</span>
+                  </div>
+                  <figcaption>
+                    <strong>Veo 3.1</strong>
+                    <span>H2RCore 66.2</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f2-wan22.mp4"
+                      poster="./static/videos/gallery/f2-wan22.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Wan2.2 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-weak">31.7</span>
+                  </div>
+                  <figcaption>
+                    <strong>Wan2.2</strong>
+                    <span>H2RCore 31.7</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="gallery-panel" data-gallery-panel="f3" hidden>
+              <p class="gallery-caption">
+                <strong>Slot batteries</strong>
+                Align each cell and press it into the battery compartment.
+              </p>
+              <div class="gallery-grid">
+                <figure class="gallery-item gallery-item--source">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f3-human.mp4"
+                      poster="./static/videos/gallery/f3-human.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Human demonstration: Slot batteries"
+                    ></video>
+                    <span class="gallery-badge gallery-badge--source">Source</span>
+                  </div>
+                  <figcaption>
+                    <strong>Human demonstration</strong>
+                    <span>Egocentric evidence of what happened</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f3-seedance.mp4"
+                      poster="./static/videos/gallery/f3-seedance.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Seedance 2.0 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-strong">89.1</span>
+                  </div>
+                  <figcaption>
+                    <strong>Seedance 2.0</strong>
+                    <span>H2RCore 89.1</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f3-veo.mp4"
+                      poster="./static/videos/gallery/f3-veo.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Veo 3.1 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-mid">67.2</span>
+                  </div>
+                  <figcaption>
+                    <strong>Veo 3.1</strong>
+                    <span>H2RCore 67.2</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f3-wan22.mp4"
+                      poster="./static/videos/gallery/f3-wan22.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Wan2.2 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-weak">18.5</span>
+                  </div>
+                  <figcaption>
+                    <strong>Wan2.2</strong>
+                    <span>H2RCore 18.5</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="gallery-panel" data-gallery-panel="f4" hidden>
+              <p class="gallery-caption">
+                <strong>Basic fold</strong>
+                Fold a piece of cloth into a flat, stacked shape.
+              </p>
+              <div class="gallery-grid">
+                <figure class="gallery-item gallery-item--source">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f4-human.mp4"
+                      poster="./static/videos/gallery/f4-human.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Human demonstration: Basic fold"
+                    ></video>
+                    <span class="gallery-badge gallery-badge--source">Source</span>
+                  </div>
+                  <figcaption>
+                    <strong>Human demonstration</strong>
+                    <span>Egocentric evidence of what happened</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f4-seedance.mp4"
+                      poster="./static/videos/gallery/f4-seedance.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Seedance 2.0 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-strong">89.3</span>
+                  </div>
+                  <figcaption>
+                    <strong>Seedance 2.0</strong>
+                    <span>H2RCore 89.3</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f4-veo.mp4"
+                      poster="./static/videos/gallery/f4-veo.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Veo 3.1 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-mid">74.8</span>
+                  </div>
+                  <figcaption>
+                    <strong>Veo 3.1</strong>
+                    <span>H2RCore 74.8</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f4-wan22.mp4"
+                      poster="./static/videos/gallery/f4-wan22.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Wan2.2 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-weak">24.8</span>
+                  </div>
+                  <figcaption>
+                    <strong>Wan2.2</strong>
+                    <span>H2RCore 24.8</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="gallery-panel" data-gallery-panel="f5" hidden>
+              <p class="gallery-caption">
+                <strong>Pour</strong>
+                Tilt the container and transfer its contents without spilling.
+              </p>
+              <div class="gallery-grid">
+                <figure class="gallery-item gallery-item--source">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f5-human.mp4"
+                      poster="./static/videos/gallery/f5-human.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Human demonstration: Pour"
+                    ></video>
+                    <span class="gallery-badge gallery-badge--source">Source</span>
+                  </div>
+                  <figcaption>
+                    <strong>Human demonstration</strong>
+                    <span>Egocentric evidence of what happened</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f5-seedance.mp4"
+                      poster="./static/videos/gallery/f5-seedance.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Seedance 2.0 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-strong">89.6</span>
+                  </div>
+                  <figcaption>
+                    <strong>Seedance 2.0</strong>
+                    <span>H2RCore 89.6</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f5-veo.mp4"
+                      poster="./static/videos/gallery/f5-veo.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Veo 3.1 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-mid">50.9</span>
+                  </div>
+                  <figcaption>
+                    <strong>Veo 3.1</strong>
+                    <span>H2RCore 50.9</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f5-wan22.mp4"
+                      poster="./static/videos/gallery/f5-wan22.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Wan2.2 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-weak">29.9</span>
+                  </div>
+                  <figcaption>
+                    <strong>Wan2.2</strong>
+                    <span>H2RCore 29.9</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="gallery-panel" data-gallery-panel="f6" hidden>
+              <p class="gallery-caption">
+                <strong>Wipe a screen</strong>
+                Press a cloth against the screen and sweep the marked area.
+              </p>
+              <div class="gallery-grid">
+                <figure class="gallery-item gallery-item--source">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f6-human.mp4"
+                      poster="./static/videos/gallery/f6-human.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Human demonstration: Wipe a screen"
+                    ></video>
+                    <span class="gallery-badge gallery-badge--source">Source</span>
+                  </div>
+                  <figcaption>
+                    <strong>Human demonstration</strong>
+                    <span>Egocentric evidence of what happened</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f6-seedance.mp4"
+                      poster="./static/videos/gallery/f6-seedance.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Seedance 2.0 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-strong">88.1</span>
+                  </div>
+                  <figcaption>
+                    <strong>Seedance 2.0</strong>
+                    <span>H2RCore 88.1</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f6-veo.mp4"
+                      poster="./static/videos/gallery/f6-veo.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Veo 3.1 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-mid">72.0</span>
+                  </div>
+                  <figcaption>
+                    <strong>Veo 3.1</strong>
+                    <span>H2RCore 72.0</span>
+                  </figcaption>
+                </figure>
+                <figure class="gallery-item">
+                  <div class="gallery-frame">
+                    <video
+                      src="./static/videos/gallery/f6-wan22.mp4"
+                      poster="./static/videos/gallery/f6-wan22.webp"
+                      width="512"
+                      height="288"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      aria-label="Wan2.2 transfer of the same demonstration to a dexterous hand."
+                    ></video>
+                    <span class="gallery-badge is-weak">24.2</span>
+                  </div>
+                  <figcaption>
+                    <strong>Wan2.2</strong>
+                    <span>H2RCore 24.2</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -754,13 +1372,23 @@
               tabindex="0"
               aria-label="Scrollable H2R-Bench pipeline figure"
             >
-              <img
-                src="./static/images/h2r/pipeline.webp"
-                width="2778"
-                height="610"
-                loading="lazy"
-                alt="H2R-Bench pipeline from egocentric human videos and embodiment-conditioned prompts through evaluated video models to robot videos scored by five metrics."
-              />
+              <button
+                class="figure-button"
+                type="button"
+                data-lightbox="./static/images/h2r/pipeline.webp"
+                data-lightbox-alt="H2R-Bench pipeline from egocentric human videos and embodiment-conditioned prompts through evaluated video models to robot videos scored by five metrics."
+                aria-label="Open larger view of this figure"
+              >
+                <img
+                  src="./static/images/h2r/pipeline.webp"
+                  width="2778"
+                  height="610"
+                  loading="lazy"
+                  alt="H2R-Bench pipeline from egocentric human videos and embodiment-conditioned prompts through evaluated video models to robot videos scored by five metrics."
+                  decoding="async"
+                />
+                <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+              </button>
             </div>
             <figcaption>
               <strong>The source-conditioned evaluation pipeline.</strong>
@@ -801,13 +1429,23 @@
 
           <div class="coverage-layout">
             <figure class="paper-figure coverage-figure">
-              <img
-                src="./static/images/h2r/coverage.webp"
-                width="1231"
-                height="1231"
-                loading="lazy"
-                alt="Sunburst chart of 120 H2R-Bench source scenes evenly divided across six manipulation families and their task subtypes."
-              />
+              <button
+                class="figure-button"
+                type="button"
+                data-lightbox="./static/images/h2r/coverage.webp"
+                data-lightbox-alt="Sunburst chart of 120 H2R-Bench source scenes evenly divided across six manipulation families and their task subtypes."
+                aria-label="Open larger view of this figure"
+              >
+                <img
+                  src="./static/images/h2r/coverage.webp"
+                  width="1231"
+                  height="1231"
+                  loading="lazy"
+                  alt="Sunburst chart of 120 H2R-Bench source scenes evenly divided across six manipulation families and their task subtypes."
+                  decoding="async"
+                />
+                <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+              </button>
               <figcaption>
                 <strong>Balanced physical task coverage.</strong> Twenty sources
                 per family, each evaluated with both embodiments.
@@ -1230,13 +1868,23 @@
                 tabindex="0"
                 aria-label="Scrollable embodiment capability radar figure"
               >
-                <img
-                  src="./static/images/h2r/embodiment-radar.webp"
-                  width="1376"
-                  height="810"
-                  loading="lazy"
-                  alt="Radar charts of M1 through M5 for eleven models under parallel-jaw gripper and dexterous hand targets."
-                />
+                <button
+                  class="figure-button"
+                  type="button"
+                  data-lightbox="./static/images/h2r/embodiment-radar.webp"
+                  data-lightbox-alt="Radar charts of M1 through M5 for eleven models under parallel-jaw gripper and dexterous hand targets."
+                  aria-label="Open larger view of this figure"
+                >
+                  <img
+                    src="./static/images/h2r/embodiment-radar.webp"
+                    width="1376"
+                    height="810"
+                    loading="lazy"
+                    alt="Radar charts of M1 through M5 for eleven models under parallel-jaw gripper and dexterous hand targets."
+                    decoding="async"
+                  />
+                  <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+                </button>
               </div>
               <figcaption>
                 <strong>Capability profiles by embodiment.</strong> The top
@@ -1279,13 +1927,23 @@
                 tabindex="0"
                 aria-label="Scrollable task-family performance figure"
               >
-                <img
-                  src="./static/images/h2r/taskwise-performance.webp"
-                  width="3866"
-                  height="1827"
-                  loading="lazy"
-                  alt="Task-family H2RCore bar charts for eleven models across the six manipulation families and two target embodiments."
-                />
+                <button
+                  class="figure-button"
+                  type="button"
+                  data-lightbox="./static/images/h2r/taskwise-performance.webp"
+                  data-lightbox-alt="Task-family H2RCore bar charts for eleven models across the six manipulation families and two target embodiments."
+                  aria-label="Open larger view of this figure"
+                >
+                  <img
+                    src="./static/images/h2r/taskwise-performance.webp"
+                    width="3866"
+                    height="1827"
+                    loading="lazy"
+                    alt="Task-family H2RCore bar charts for eleven models across the six manipulation families and two target embodiments."
+                    decoding="async"
+                  />
+                  <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+                </button>
               </div>
               <figcaption>
                 <strong>Performance depends on the interaction family.</strong>
@@ -1302,13 +1960,23 @@
                 tabindex="0"
                 aria-label="Scrollable task-attribute analysis figure"
               >
-                <img
-                  src="./static/images/h2r/attribute-breakdown.webp"
-                  width="2356"
-                  height="847"
-                  loading="lazy"
-                  alt="H2RCore by direct manipulation versus tool use and by two to three versus four or more required action events."
-                />
+                <button
+                  class="figure-button"
+                  type="button"
+                  data-lightbox="./static/images/h2r/attribute-breakdown.webp"
+                  data-lightbox-alt="H2RCore by direct manipulation versus tool use and by two to three versus four or more required action events."
+                  aria-label="Open larger view of this figure"
+                >
+                  <img
+                    src="./static/images/h2r/attribute-breakdown.webp"
+                    width="2356"
+                    height="847"
+                    loading="lazy"
+                    alt="H2RCore by direct manipulation versus tool use and by two to three versus four or more required action events."
+                    decoding="async"
+                  />
+                  <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+                </button>
               </div>
               <figcaption>
                 <strong>Attribute-level view.</strong> Tool use and longer event
@@ -1353,13 +2021,23 @@
             <figure
               class="paper-figure diagnostic-figure diagnostic-figure--quality"
             >
-              <img
-                src="./static/images/h2r/quality-vs-transfer.webp"
-                width="1335"
-                height="1245"
-                loading="lazy"
-                alt="Side-by-side rankings by VBench video quality and H2RCore showing weak Spearman correlation of 0.14."
-              />
+              <button
+                class="figure-button"
+                type="button"
+                data-lightbox="./static/images/h2r/quality-vs-transfer.webp"
+                data-lightbox-alt="Side-by-side rankings by VBench video quality and H2RCore showing weak Spearman correlation of 0.14."
+                aria-label="Open larger view of this figure"
+              >
+                <img
+                  src="./static/images/h2r/quality-vs-transfer.webp"
+                  width="1335"
+                  height="1245"
+                  loading="lazy"
+                  alt="Side-by-side rankings by VBench video quality and H2RCore showing weak Spearman correlation of 0.14."
+                  decoding="async"
+                />
+                <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+              </button>
               <figcaption>
                 HunyuanVideo leads generic video quality but sits near the
                 bottom of H2RCore; Mitty shows the reverse pattern.
@@ -1373,13 +2051,23 @@
                 tabindex="0"
                 aria-label="Scrollable transfer failure-rate figure"
               >
-                <img
-                  src="./static/images/h2r/diagnostic-failures.webp"
-                  width="3266"
-                  height="1206"
-                  loading="lazy"
-                  alt="Failure rates for human-led manipulation, embodiment mismatch, structural drift, unsupported object response, contact mismatch, and missing action events."
-                />
+                <button
+                  class="figure-button"
+                  type="button"
+                  data-lightbox="./static/images/h2r/diagnostic-failures.webp"
+                  data-lightbox-alt="Failure rates for human-led manipulation, embodiment mismatch, structural drift, unsupported object response, contact mismatch, and missing action events."
+                  aria-label="Open larger view of this figure"
+                >
+                  <img
+                    src="./static/images/h2r/diagnostic-failures.webp"
+                    width="3266"
+                    height="1206"
+                    loading="lazy"
+                    alt="Failure rates for human-led manipulation, embodiment mismatch, structural drift, unsupported object response, contact mismatch, and missing action events."
+                    decoding="async"
+                  />
+                  <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+                </button>
               </div>
               <figcaption>
                 <strong>Where transfer breaks.</strong> Frame-conditioned
@@ -1432,13 +2120,23 @@
               tabindex="0"
               aria-label="Scrollable qualitative transfer comparison figure"
             >
-              <img
-                src="./static/images/h2r/qualitative.webp"
-                width="2000"
-                height="1125"
-                loading="lazy"
-                alt="A shared scoop-and-dump human demonstration followed by Seedance, HunyuanVideo, and Veo outputs with per-video H2R metric strips."
-              />
+              <button
+                class="figure-button"
+                type="button"
+                data-lightbox="./static/images/h2r/qualitative.webp"
+                data-lightbox-alt="A shared scoop-and-dump human demonstration followed by Seedance, HunyuanVideo, and Veo outputs with per-video H2R metric strips."
+                aria-label="Open larger view of this figure"
+              >
+                <img
+                  src="./static/images/h2r/qualitative.webp"
+                  width="2000"
+                  height="1125"
+                  loading="lazy"
+                  alt="A shared scoop-and-dump human demonstration followed by Seedance, HunyuanVideo, and Veo outputs with per-video H2R metric strips."
+                  decoding="async"
+                />
+                <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+              </button>
             </div>
             <figcaption>
               <strong>One demonstration, three transfer outcomes.</strong>
@@ -1487,13 +2185,23 @@
                 tabindex="0"
                 aria-label="Scrollable human and MLLM ranking-agreement figure"
               >
-                <img
-                  src="./static/images/h2r/human-alignment.webp"
-                  width="2540"
-                  height="1013"
-                  loading="lazy"
-                  alt="Human, Gemini, Qwen, and GPT within-scene ranking correlations above 0.8 for both target embodiments."
-                />
+                <button
+                  class="figure-button"
+                  type="button"
+                  data-lightbox="./static/images/h2r/human-alignment.webp"
+                  data-lightbox-alt="Human, Gemini, Qwen, and GPT within-scene ranking correlations above 0.8 for both target embodiments."
+                  aria-label="Open larger view of this figure"
+                >
+                  <img
+                    src="./static/images/h2r/human-alignment.webp"
+                    width="2540"
+                    height="1013"
+                    loading="lazy"
+                    alt="Human, Gemini, Qwen, and GPT within-scene ranking correlations above 0.8 for both target embodiments."
+                    decoding="async"
+                  />
+                  <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+                </button>
               </div>
               <figcaption>
                 <strong>Human–MLLM ranking agreement.</strong> Each automatic
@@ -1524,13 +2232,23 @@
               tabindex="0"
               aria-label="Scrollable human evaluation interface figure"
             >
-              <img
-                src="./static/images/h2r/human-evaluation.webp"
-                width="1899"
-                height="900"
-                loading="lazy"
-                alt="Human evaluation interface showing the source video beside a generated robot video and expandable M1 through M4 scoring criteria."
-              />
+              <button
+                class="figure-button"
+                type="button"
+                data-lightbox="./static/images/h2r/human-evaluation.webp"
+                data-lightbox-alt="Human evaluation interface showing the source video beside a generated robot video and expandable M1 through M4 scoring criteria."
+                aria-label="Open larger view of this figure"
+              >
+                <img
+                  src="./static/images/h2r/human-evaluation.webp"
+                  width="1899"
+                  height="900"
+                  loading="lazy"
+                  alt="Human evaluation interface showing the source video beside a generated robot video and expandable M1 through M4 scoring criteria."
+                  decoding="async"
+                />
+                <span class="figure-zoom" aria-hidden="true">&#8599;</span>
+              </button>
             </div>
             <figcaption>
               <strong>Human evaluation interface.</strong> Annotators inspect
@@ -1661,5 +2379,16 @@
         </p>
       </div>
     </footer>
+    <dialog class="lightbox" data-lightbox-dialog aria-label="Enlarged figure">
+      <button
+        class="lightbox-close"
+        type="button"
+        data-lightbox-close
+        aria-label="Close enlarged figure"
+      >
+        &times;
+      </button>
+      <img data-lightbox-image src="" alt="" />
+    </dialog>
   </body>
 </html>

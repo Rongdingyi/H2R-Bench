@@ -92,4 +92,112 @@
 
     observedSections.forEach((section) => observer.observe(section));
   }
+
+  /* Tabbed transfer gallery: ARIA roles + roving focus + play only what is visible */
+  const tablist = document.querySelector("[data-gallery-tabs]");
+
+  if (tablist) {
+    const tabs = Array.from(tablist.querySelectorAll("[data-gallery-tab]"));
+    const panels = new Map(
+      Array.from(document.querySelectorAll("[data-gallery-panel]")).map(
+        (panel) => [panel.dataset.galleryPanel, panel],
+      ),
+    );
+
+    tablist.setAttribute("role", "tablist");
+
+    tabs.forEach((tab, index) => {
+      const key = tab.dataset.galleryTab;
+      const panel = panels.get(key);
+      if (!panel) return;
+      tab.id = tab.id || `gallery-tab-${key}`;
+      panel.id = panel.id || `gallery-panel-${key}`;
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-controls", panel.id);
+      panel.setAttribute("role", "tabpanel");
+      panel.setAttribute("aria-labelledby", tab.id);
+      panel.setAttribute("tabindex", "0");
+      const active = index === 0;
+      tab.setAttribute("aria-selected", String(active));
+      tab.setAttribute("tabindex", active ? "0" : "-1");
+    });
+
+    const select = (key, { focus = false } = {}) => {
+      tabs.forEach((tab) => {
+        const active = tab.dataset.galleryTab === key;
+        tab.classList.toggle("is-active", active);
+        tab.setAttribute("aria-selected", String(active));
+        tab.setAttribute("tabindex", active ? "0" : "-1");
+        if (active && focus) tab.focus();
+      });
+
+      panels.forEach((panel, panelKey) => {
+        const active = panelKey === key;
+        panel.hidden = !active;
+        panel.querySelectorAll("video").forEach((video) => {
+          if (!active) {
+            video.pause();
+            return;
+          }
+          if (video.preload === "none") video.preload = "metadata";
+          const play = video.play();
+          if (play && typeof play.catch === "function") play.catch(() => {});
+        });
+      });
+    };
+
+    tablist.addEventListener("click", (event) => {
+      const tab = event.target.closest("[data-gallery-tab]");
+      if (tab) select(tab.dataset.galleryTab);
+    });
+
+    tablist.addEventListener("keydown", (event) => {
+      const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+      if (!keys.includes(event.key)) return;
+      const current = tabs.findIndex(
+        (tab) => tab.getAttribute("aria-selected") === "true",
+      );
+      let next = current;
+      if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
+      if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
+      if (event.key === "Home") next = 0;
+      if (event.key === "End") next = tabs.length - 1;
+      event.preventDefault();
+      select(tabs[next].dataset.galleryTab, { focus: true });
+    });
+  }
+
+  /* Click any paper figure to open it full size */
+  const dialog = document.querySelector("[data-lightbox-dialog]");
+
+  if (dialog && typeof dialog.showModal === "function") {
+    const image = dialog.querySelector("[data-lightbox-image]");
+    let lastFocus = null;
+
+    const close = () => {
+      if (dialog.open) dialog.close();
+    };
+
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-lightbox]");
+      if (!trigger) return;
+      event.preventDefault();
+      lastFocus = trigger;
+      image.src = trigger.dataset.lightbox;
+      image.alt = trigger.dataset.lightboxAlt || "";
+      dialog.showModal();
+      document.body.classList.add("dialog-open");
+    });
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog || event.target.closest("[data-lightbox-close]"))
+        close();
+    });
+
+    dialog.addEventListener("close", () => {
+      document.body.classList.remove("dialog-open");
+      image.removeAttribute("src");
+      if (lastFocus) lastFocus.focus();
+    });
+  }
 })();
