@@ -18,31 +18,21 @@ Yao Mu<sup>1,2</sup>, Guangtao Zhai<sup>1,2&dagger;</sup>, Ning Liu<sup>1&dagger
 
 ---
 
-## About
+## Overview
 
-Large-scale manipulation data is essential for robot learning, yet collecting robot demonstrations remains expensive and difficult to scale. Egocentric human manipulation videos are abundant, but transferring them across embodiments is hard because human hands and robotic end-effectors differ. Video world models offer a possible bridge — H2R-Bench
-asks whether they actually cross it.
+**H2R-Bench** evaluates human-to-robot manipulation video generation: given a
+human demonstration, can a video model reproduce the task with a robotic
+end-effector?
 
-Given an egocentric human demonstration and a target robot embodiment, a model must generate the corresponding robot manipulation video. H2R-Bench then scores that video along five dimensions:
+The benchmark contains **120 scenes across 6 manipulation families**, paired
+with **parallel-jaw grippers and dexterous hands** to form **240 transfer cases**.
+We evaluate goal completion, action completion, functional contact, embodiment
+correctness and video quality, summarized by **H2RCore**.
 
-| | Metric | Weight |
-|---|---|---|
-| M1 | Goal-state completion | 0.15 |
-| M2 | Action-event completion | 0.15 |
-| M3 | Functional contact transfer | 0.30 |
-| M4 | Embodiment correctness | 0.30 |
-| M5 | Video quality (task-agnostic) | 0.10 |
+![H2R-Bench overview](docs/static/images/overview.png)
 
-`H2RCore = 100 × (0.15·M1 + 0.15·M2 + 0.30·M3 + 0.30·M4 + 0.10·M5)`
-
-**Scale:** 120 egocentric source clips (EgoDex test split) × 2 target embodiments
-(parallel-jaw gripper, dexterous hand) = 240 transfer cases, evenly spread over
-6 manipulation families. 11 video generation models evaluated.
-
-**Headline finding:** generic video quality and transfer validity are nearly
-rank-independent (Spearman ρ = 0.14). Polished clips routinely retain human hands,
-realize the wrong end-effector, or show object changes unsupported by any visible robot
-interaction.
+See the [paper](https://arxiv.org/abs/2608.13049) for the benchmark design,
+metric definitions and experimental results.
 
 ## Leaderboard
 
@@ -74,95 +64,64 @@ Full per-metric breakdown on the [project page](https://rongdingyi.github.io/H2R
 | [Judge prompts](prompts/judging/) | M1–M4 scoring instructions and response formats |
 | [Evaluation code](evaluation/) | Frame sampling, judge calls, M1–M5 scoring and aggregation |
 
-Use `scene_id` to match annotations and generation prompts. A generation ID is
-`<scene_id>__mechanical_arm` or `<scene_id>__dexterous_hand`; `mechanical_arm`
-denotes the parallel-jaw-gripper target. The internal `case_id` appends
-`/episode_01` to the scene ID. The six families cover rigid-object rearrangement,
-mechanism actuation, insertion/connection, deformable configuration,
-bulk-content transfer and surface/material transformation.
+Each scene has two generation prompts, one for `mechanical_arm` (parallel-jaw
+grippers) and one for `dexterous_hand`. Use `scene_id` to match prompts and annotations.
 
-Generation prompts are the shared English task prompts for each scene and
-target embodiment. Models receive visual inputs through their native interfaces.
+## Quick start
 
-## Evaluation
+### 1. Installation
 
-Requires Python 3.10+. Provide source clips as `<source-dir>/<scene_id>.mp4`
-and generated clips as `<generated-dir>/<generation_id>/output.mp4`.
+Python 3.10+ is required.
 
 ```bash
+git clone https://github.com/Rongdingyi/H2R-Bench.git
+cd H2R-Bench
 pip install -r requirements.txt
+```
 
-python -B -m evaluation.prepare \
+### 2. Prepare videos
+
+Organize source and generated videos as follows, using the IDs in
+[scene_ids.txt](benchmark/scene_ids.txt) and [generation.jsonl](prompts/generation.jsonl):
+
+```text
+source-videos/
+  <scene_id>.mp4
+generated-videos/
+  <scene_id>__mechanical_arm/output.mp4
+  <scene_id>__dexterous_hand/output.mp4
+```
+
+Create the evaluation manifest:
+
+```bash
+python -m evaluation.prepare \
   --source-dir /path/to/source-videos \
   --generated-dir /path/to/generated-videos \
-  --model my-model --output outputs/my-model/manifest.jsonl
-
-python -B -m evaluation.run \
-  --manifest outputs/my-model/manifest.jsonl \
-  --output-dir outputs/my-model/judges --dry-run
+  --model my-model \
+  --output outputs/my-model/manifest.jsonl
 ```
 
-For actual scoring, remove `--dry-run` after configuring the selected judges.
-The client uses OpenAI-compatible Chat Completions endpoints.
+### 3. Run M1–M4
 
-| Judge | Default model ID | Required environment variables |
+Configure the API keys and OpenAI-compatible endpoints for the judges:
+
+| Judge | Model | Environment variables |
 |---|---|---|
-| Qwen | `qwen3.7-plus` | `H2R_QWEN_BASE_URL`, `H2R_QWEN_API_KEY` |
-| Gemini | `gemini-3.5-flash` | `H2R_GEMINI_BASE_URL`, `H2R_GEMINI_API_KEY` |
-| GPT | `gpt-5.4` | `H2R_GPT_BASE_URL`, `H2R_GPT_API_KEY` |
-
-Select judges with `--providers qwen,gemini,gpt`; override model IDs with
-`H2R_QWEN_MODEL`, `H2R_GEMINI_MODEL` and `H2R_GPT_MODEL`. IDs reflect the
-recorded models; availability depends on the service. Runs save prompts,
-raw judgments, frame indices and media hashes, and resume matching cached
-responses. Failed requests are retried up to three times; missing scores are
-not filled with zero.
-
-The annotations preserve the main experiment's 108 original and 12 corrected
-scenes. M1/M2 use 32 frames (M1: final eight) or 24 frames (M1: final six),
-respectively; M3 uses 24 source and 24 generated frames, and M4 uses 12 generated
-frames. The earlier 32-frame rubric was recovered from the original conversation;
-it is not a verified copy of every final API request. The portable runner is
-versioned `release-mixed-spec-v1`, with stricter response validation and removal
-of annotation-time frame indices from M3 inputs.
-
-M1 and M2 use weighted normalized goal/event scores; action-order diagnostics
-are excluded from M2. M3 averages five contact dimensions and applies the
-source-grounding failure gate. M4 uses weights 0.20/0.20/0.20/0.25/0.15 for
-presence, human absence, category, end effector and structure, with the retained
-subtype cap and hard-failure rule. Selected judges are averaged per video.
-
-### Video quality and final scores
-
-M5 averages four normalized VBench components: imaging quality, aesthetic
-quality, temporal flickering and motion smoothness, using the full clip at its
-native frame rate. Install [VBench](https://github.com/Vchitect/VBench) at commit
-`45e79ec14e69a2187202c675d2dbce1a71843d53` with its GPU dependencies and weights.
-The dry run below lists the required checkpoints; remove `--dry-run` to compute.
+| Qwen | `qwen3.7-plus` | `H2R_QWEN_API_KEY`, `H2R_QWEN_BASE_URL` |
+| Gemini | `gemini-3.5-flash` | `H2R_GEMINI_API_KEY`, `H2R_GEMINI_BASE_URL` |
+| GPT | `gpt-5.4` | `H2R_GPT_API_KEY`, `H2R_GPT_BASE_URL` |
 
 ```bash
-python -B -m evaluation.video_quality \
+python -m evaluation.run \
   --manifest outputs/my-model/manifest.jsonl \
-  --vbench-root /path/to/VBench --weights /path/to/vbench-weights \
-  --output-dir outputs/my-model/m5 --dry-run
-
-python -B -m evaluation.aggregate \
-  --scores outputs/my-model/judges/scores.jsonl \
-  --m5 outputs/my-model/m5/m5.jsonl \
-  --output-dir outputs/my-model/summary
+  --output-dir outputs/my-model/judges \
+  --providers qwen,gemini,gpt
 ```
 
-Aggregation checks case IDs and video hashes, then reports means and valid
-counts per model/embodiment. Without M5, H2RCore is left empty. The resulting
-weighted score measures visual transfer quality, not physical executability
-or joint task-success frequency.
+Add `--dry-run` to preview the evaluation inputs and prompts.
 
-Offline tests (no API calls):
-
-```bash
-pip install pytest
-PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider
-```
+Results are saved to `summary.csv` and `per_video.jsonl` in the summary directory.
 
 ## Citation
 
