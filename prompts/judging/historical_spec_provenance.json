@@ -1,0 +1,8 @@
+{
+  "file": "M1_M2_32frames_historical_spec.txt",
+  "source": "User-provided H2RBench conversation export: original 32-frame M1/M2 prompt specification",
+  "source_text_sha256": "9bcc2c2b6086d4ccf65f30a22a7bd8b8b47eaab9ead63347933a6ddab9374997",
+  "prompt_sha256": "86461c70dc5b999f88c4fa3d605aa7a35206438964d3326d38b10cec2355d4a0",
+  "transformation": "Removed Markdown blockquote prefixes only; retained the original case_annotation_json placeholder.",
+  "status": "Historical user-specified rubric; not verified as the exact final serialized request for every archived score."
+}

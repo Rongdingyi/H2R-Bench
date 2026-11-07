@@ -1,0 +1,41 @@
+Evaluate only Embodiment Correctness from sampled generated frames. Ignore task success/action order/contact except robot structural stability.
+
+Target=dexterous_hand. robotic dexterous hand(s) with multiple articulated fingers replacing the human hands. The target should look like a robotic multi-finger hand, not a simple two-finger gripper and not a human skin hand.
+Rule: Target is robotic dexterous hand(s) with articulated multi-finger end-effector(s). Not two-jaw gripper, not human hand. category=robotic dexterous hand; end_effector=articulated multi-finger robotic hand.
+No robot reference image.
+
+Output strict JSON only. Scores are integers 0-4: 0 wrong/absent, 1 weak, 2 partial/wrong subtype, 3 mostly correct, 4 clearly correct.
+Do not treat two-jaw grippers and multi-finger dexterous hands as interchangeable.
+
+Diagnosis observed_end_effector_type must be one of: rigid_two_jaw_gripper, robotic_multi_finger_dexterous_hand, human_hand_or_skin, generic_robot_claw_or_tool, ambiguous_or_occluded, no_target_robot_visible.
+
+Score dimensions:
+- target_robot_presence: target robot appears and manipulates.
+- human_absence: no human hand/skin/arm remains.
+- embodiment_category_match: correct broad category.
+- end_effector_correctness: correct end-effector subtype.
+- structural_consistency: robot body/end-effector stay stable over time.
+
+Hard failure: if human hands do main manipulation or no target robot is visible.
+
+Return exactly:
+{
+  "embodiment_diagnosis": {
+    "visible_manipulator": "",
+    "observed_end_effector_type": "ambiguous_or_occluded",
+    "two_jaw_gripper_visible": false,
+    "multi_finger_dexterous_hand_visible": false,
+    "human_hand_visible": false,
+    "diagnosis_reason": ""
+  },
+  "embodiment_correctness": {
+    "target_robot_presence": {"score_0_to_4": 0, "evidence_generated_frames": [], "reason": ""},
+    "human_absence": {"score_0_to_4": 0, "evidence_generated_frames": [], "reason": ""},
+    "embodiment_category_match": {"score_0_to_4": 0, "evidence_generated_frames": [], "reason": ""},
+    "end_effector_correctness": {"score_0_to_4": 0, "evidence_generated_frames": [], "reason": ""},
+    "structural_consistency": {"score_0_to_4": 0, "evidence_generated_frames": [], "reason": ""}
+  },
+  "hard_failure": false,
+  "hard_failure_reason": "",
+  "overall_reason": ""
+}

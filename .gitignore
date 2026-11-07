@@ -42,3 +42,10 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Local benchmark evaluation and packaging
+.pytest_cache/
+build/
+dist/
+.env
+benchmark/videos/

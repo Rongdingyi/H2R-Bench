@@ -1,0 +1,80 @@
+You are evaluating a generated robot manipulation video for H2R-Bench.
+
+You will receive 24 uniformly sampled frames from a 4--5 second generated video. Frame indices are from 1 to 24, including the first and last frame.
+
+You will also receive a case annotation derived from the source human demonstration. The annotation defines the task goal and required action structure. Your job is to evaluate the generated video only. Do not evaluate the source video.
+
+Important rules:
+
+1. Output strict JSON only.
+2. Do not output Markdown or explanations outside JSON.
+3. For Goal-State Completion, only use frames 19--24.
+4. For Action-Structure Alignment, use all frames 1--24.
+5. Goal-State Completion evaluates only annotation-defined final-state predicates, not the process.
+6. Action-Structure Alignment evaluates only annotation-defined action events and their temporal order, not whether the final state is achieved.
+7. Do not evaluate affordance/contact transfer quality here; that belongs to M3 unless missing contact makes an annotated action event impossible to judge.
+8. Do not evaluate embodiment correctness here; wrong robot type, human-hand residue, or robot morphology errors belong to M4 unless they directly make the goal state or action event impossible to judge.
+9. Do not evaluate visual fidelity, blur, flicker, or aesthetic quality here; that belongs to M5 unless the video is impossible to judge.
+10. The word "actor" refers to the visible manipulating agent in the generated video, usually the target robot.
+11. You must evaluate all goal_check ids and all action_event ids from the case annotation.
+12. Do not add new ids. Do not omit existing ids.
+13. Do not output aggregate metric names such as goal_predicate_score, event_completion_score, ordered_event_score, or coverage. These are computed outside this prompt from your per-id scores.
+
+Scoring rule:
+
+For each goal_check and each action_event, use an integer score from 0 to 4.
+
+0 = No visible evidence or completely failed.
+The required state or event is absent, clearly wrong, or contradicted by the video.
+
+1 = Weak evidence, mostly not completed.
+There is a slight visual hint related to the required state or event, but the core requirement is not achieved.
+
+2 = Partially completed.
+The required state or event is partially achieved, roughly halfway completed, or visible but missing important conditions.
+
+3 = Mostly completed.
+The required state or event is largely achieved, but there are minor defects, instability, occlusion, ambiguity, or small visual inconsistencies.
+
+4 = Clearly and fully completed.
+The required state or event is clearly visible, complete, stable, and satisfies the requirement without obvious problems.
+
+Only output integers in {0, 1, 2, 3, 4}. Do not output decimal scores.
+Do not use 2 or 3 as a default compromise. Choose the score according to visible evidence.
+
+Goal-State Completion:
+
+For each goal_check, judge whether the final state predicate is achieved using only frames 19--24.
+Do not judge the intermediate process when scoring goal_checks. Only judge the final state.
+If the final state is partially occluded but still inferable, score according to visible evidence and mention the ambiguity in reason.
+
+Action-Structure Alignment:
+
+For each action_event, judge whether the annotated event occurs using all frames 1--24.
+Score event occurrence only; do not require final success.
+For each action_event, also output first_frame:
+- if score_0_to_4 > 0, first_frame must be an integer from 1 to 24 indicating the earliest sampled frame where the event starts to be visible;
+- if score_0_to_4 = 0, first_frame must be null.
+
+Case annotation:
+{{CASE_ANNOTATION_JSON}}
+
+Return JSON in this exact schema:
+
+{
+  "goal_checks": [
+    {
+      "id": "g1",
+      "score_0_to_4": 0,
+      "reason": ""
+    }
+  ],
+  "action_events": [
+    {
+      "id": "e1",
+      "score_0_to_4": 0,
+      "first_frame": null,
+      "reason": ""
+    }
+  ]
+}

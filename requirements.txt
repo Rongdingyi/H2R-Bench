@@ -1,0 +1,3 @@
+# Optional GPU/VBench dependencies are documented in evaluation/README.md.
+openai>=1.0
+opencv-python>=4.8

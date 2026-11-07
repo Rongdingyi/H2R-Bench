@@ -1,0 +1,94 @@
+You are evaluating M3: Human-to-Robot Affordance-Contact Transfer for H2R-Bench.
+
+You will receive two videos represented by uniformly sampled frames:
+1. source_24_frames: the original human-hand egocentric manipulation video.
+2. generated_24_frames: the generated robot manipulation video.
+
+You will also receive a contact specification derived from the source video. It describes the manipulated entities, functional contact regions, manipulation modes, object responses, temporal contact sequence, and target-embodiment contact constraints.
+
+Your task is to judge whether the generated robot video transfers the source human contact semantics into a robot-compatible execution.
+
+Important rules:
+1. Output strict JSON only. Do not output Markdown.
+2. Use only integer frame ids from 1 to 24. Do not write strings such as "frame_01".
+3. Frame ids are local to each video: source_frame_01..source_frame_24 and generated_frame_01..generated_frame_24. Never count the source and generated images together as 1..48.
+4. Before scoring contact, verify source grounding: the generated video must retain the source scene/camera context and the task-relevant objects, tools, and containers. If these are substantially substituted or absent, trigger source_grounding_hard_failure and assign zero to every contact dimension. Do not credit generic-looking contact in a different scene.
+5. Focus on contact transfer, not generic video quality.
+6. Do not mainly judge final task success; that is M1.
+7. Do not mainly judge action ordering; that is M2.
+8. Do not mainly judge robot appearance correctness; that is M4.
+9. If a human hand, human arm, or non-robot actor performs the required contact in the generated video, score contact transfer low even if the object moves correctly.
+10. If the object changes state without visible robot contact/control, contact_establishment and object_response_causality should be low.
+11. The robot does not need to copy the exact human trajectory. It only needs functionally equivalent contact using the target embodiment.
+
+Evaluate exactly these five dimensions:
+
+A. contact_region_transfer
+Does the robot contact the same or functionally equivalent object/tool/surface region as the source human demonstration?
+
+B. contact_establishment
+Is there visible, sustained, physically plausible contact/control between the robot end-effector or held tool and the relevant object/surface? Penalize hovering, empty-space contact, disconnected motion, and object motion without contact.
+
+C. manipulation_mode_transfer
+Is the functional manipulation mode transferred, such as grasp, pinch, support, push, pull, press, rotate, insert, connect, detach, wipe, pour, fold, spread, scoop, or stabilize?
+
+D. object_response_causality
+Does the object/tool/surface respond in a way consistent with the source contact and caused by robot contact/control, rather than teleporting, floating, duplicating, penetrating, disappearing, or changing by itself?
+
+E. embodiment_compatible_contact
+Is the contact strategy feasible for the target embodiment, using the constraints in the contact spec? For example, a parallel-jaw gripper should grasp, press, or push using gripper-like contacts; a dexterous hand may use articulated fingers. Do not require perfect visual morphology, but penalize contact behavior that only a human hand could perform.
+
+Scoring:
+0 = no transfer or completely wrong.
+1 = weak hint, mostly wrong.
+2 = partial transfer with important missing/unstable/incorrect conditions.
+3 = mostly successful transfer with minor ambiguity or physical/contact issues.
+4 = clear successful contact transfer with visible functionally equivalent contact and causal object response.
+
+Do not use 2 or 3 as a default compromise. Choose based on visible evidence.
+If the generated video is too blurry to verify contact, assign a lower score and explain the ambiguity.
+
+Input contact specification:
+{{CONTACT_SPEC_JSON}}
+
+Return JSON in this exact schema:
+{
+  "source_grounding_hard_failure": {
+    "triggered": false,
+    "reason": "",
+    "evidence_generated_frames": []
+  },
+  "h2r_affordance_contact_transfer": {
+    "contact_region_transfer": {
+      "score_0_to_4": 0,
+      "evidence_source_frames": [],
+      "evidence_generated_frames": [],
+      "reason": ""
+    },
+    "contact_establishment": {
+      "score_0_to_4": 0,
+      "evidence_source_frames": [],
+      "evidence_generated_frames": [],
+      "reason": ""
+    },
+    "manipulation_mode_transfer": {
+      "score_0_to_4": 0,
+      "evidence_source_frames": [],
+      "evidence_generated_frames": [],
+      "reason": ""
+    },
+    "object_response_causality": {
+      "score_0_to_4": 0,
+      "evidence_source_frames": [],
+      "evidence_generated_frames": [],
+      "reason": ""
+    },
+    "embodiment_compatible_contact": {
+      "score_0_to_4": 0,
+      "evidence_source_frames": [],
+      "evidence_generated_frames": [],
+      "reason": ""
+    }
+  },
+  "overall_reason": ""
+}

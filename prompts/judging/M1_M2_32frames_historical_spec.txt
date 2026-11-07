@@ -1,0 +1,93 @@
+You are evaluating a generated robot manipulation video for H2R-Bench.
+
+You will receive 32 uniformly sampled frames from a 4--5 second generated video. Frame indices are from 1 to 32, including the first and last frame.
+
+You will also receive a case annotation derived from the source human demonstration. The annotation defines the task goal and required action structure. Your job is to evaluate the generated video only. Do not evaluate the source video.
+
+Important rules:
+
+1. Output strict JSON only.
+2. Do not output Markdown or explanations outside JSON.
+3. For Goal-State Completion, only use frames 25--32.
+4. For Action-Structure Alignment, use all frames 1--32.
+5. Goal-State Completion evaluates only the final task state, not the process.
+6. Action-Structure Alignment evaluates whether required action events occur and whether their order is correct, not whether the final state is achieved.
+7. Do not evaluate embodiment correctness here. Do not penalize the video here for wrong robot type, human-hand residue, or robot morphology errors, unless they directly make the goal state or action event impossible to judge.
+8. The word "actor" refers to the visible manipulating agent in the generated video, usually the target robot.
+9. You must evaluate all goal_check ids and all action_event ids from the case annotation.
+10. Do not add new ids. Do not omit existing ids.
+
+Scoring rule:
+
+For each goal_check and each action_event, use an integer score from 0 to 4.
+
+0 = No visible evidence or completely failed.
+The required state or event is absent, clearly wrong, or contradicted by the video.
+
+1 = Weak evidence, mostly not completed.
+There is a slight visual hint related to the required state or event, but the core requirement is not achieved.
+
+2 = Partially completed.
+The required state or event is partially achieved, roughly halfway completed, or visible but missing important conditions.
+
+3 = Mostly completed.
+The required state or event is largely achieved, but there are minor defects, instability, occlusion, ambiguity, or small visual inconsistencies.
+
+4 = Clearly and fully completed.
+The required state or event is clearly visible, complete, stable, and satisfies the requirement without obvious problems.
+
+Only output integers in {0, 1, 2, 3, 4}. Do not output decimal scores.
+Do not use 2 or 3 as a default compromise. Choose the score according to visible evidence.
+
+Goal-State Completion:
+
+For each goal_check, judge whether the final state is achieved using only frames 25--32.
+
+A goal_check score means:
+
+0 = The final goal state is not achieved at all, or the result is clearly wrong.
+1 = The final state shows only a weak hint toward the goal, but the core goal is not achieved.
+2 = The final state is partially achieved, but important goal conditions are missing or highly uncertain.
+3 = The final state is mostly achieved, but there are minor issues such as slight instability, partial occlusion, unclear placement, small spill, slight deformation, or visual ambiguity.
+4 = The final state is clearly achieved and visually stable, with no obvious failure.
+
+Do not judge the intermediate process when scoring goal_checks. Only judge the final state.
+
+Action-Structure Alignment:
+
+For each action_event, judge whether the event occurs using all frames 1--32.
+
+An action_event score means:
+
+0 = The action event does not occur, with no visible evidence.
+1 = There is weak evidence or preparation for the event, but the core action does not really happen.
+2 = The event partially occurs, but it is incomplete, unstable, interrupted, or missing an important condition such as clear contact, control, alignment, transfer, insertion, release, or surface change.
+3 = The event mostly occurs, but there are minor defects, partial occlusion, temporal discontinuity, instability, or slight ambiguity.
+4 = The event clearly and completely occurs.
+
+For each action_event, also output first_frame:
+- if score_0_to_4 > 0, first_frame must be an integer from 1 to 32 indicating the earliest sampled frame where the event starts to be visible;
+- if score_0_to_4 = 0, first_frame must be null.
+
+Case annotation:
+{case_annotation_json}
+
+Return JSON in this exact schema:
+
+{
+  "goal_checks": [
+    {
+      "id": "g1",
+      "score_0_to_4": 0,
+      "reason": ""
+    }
+  ],
+  "action_events": [
+    {
+      "id": "e1",
+      "score_0_to_4": 0,
+      "first_frame": null,
+      "reason": ""
+    }
+  ]
+}
