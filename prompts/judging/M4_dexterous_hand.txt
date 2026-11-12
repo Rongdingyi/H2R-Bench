@@ -1,22 +1,25 @@
 Evaluate only Embodiment Correctness from sampled generated frames. Ignore task success/action order/contact except robot structural stability.
 
+You will receive 25 uniformly sampled generated frames, including the first and last frame. Use integer evidence indices from 1 to 25.
+
 Target=dexterous_hand. robotic dexterous hand(s) with multiple articulated fingers replacing the human hands. The target should look like a robotic multi-finger hand, not a simple two-finger gripper and not a human skin hand.
 Rule: Target is robotic dexterous hand(s) with articulated multi-finger end-effector(s). Not two-jaw gripper, not human hand. category=robotic dexterous hand; end_effector=articulated multi-finger robotic hand.
 No robot reference image.
 
-Output strict JSON only. Scores are integers 0-4: 0 wrong/absent, 1 weak, 2 partial/wrong subtype, 3 mostly correct, 4 clearly correct.
+Output strict JSON only. Scores are integers 0-4: 0 wrong/absent, 1 weak, 2 partial, 3 mostly correct, 4 clearly correct.
+Each dimension must include a non-empty reason and evidence_generated_frames. Positive scores require at least one cited frame; zero scores may use an empty list with a rationale. If hard_failure is true, explain it in hard_failure_reason.
 Do not treat two-jaw grippers and multi-finger dexterous hands as interchangeable.
 
-Diagnosis observed_end_effector_type must be one of: rigid_two_jaw_gripper, robotic_multi_finger_dexterous_hand, human_hand_or_skin, generic_robot_claw_or_tool, ambiguous_or_occluded, no_target_robot_visible.
+Diagnosis observed_end_effector_type must be one of: rigid_two_jaw_gripper, robotic_multi_finger_dexterous_hand, human_hand_or_skin, generic_robot_claw_or_tool, ambiguous_or_occluded, no_robot_visible.
 
 Score dimensions:
-- target_robot_presence: target robot appears and manipulates.
+- target_robot_presence: a robotic actor is visibly present, irrespective of subtype. A visible dexterous hand receives presence credit even when a parallel-jaw gripper is requested; assess type mismatch separately below.
 - human_absence: no human hand/skin/arm remains.
 - embodiment_category_match: correct broad category.
 - end_effector_correctness: correct end-effector subtype.
 - structural_consistency: robot body/end-effector stay stable over time.
 
-Hard failure: if human hands do main manipulation or no target robot is visible.
+Hard failure: if human hands perform the principal manipulation or no robotic actor is visible. A wrong robot subtype alone is not a hard failure.
 
 Return exactly:
 {

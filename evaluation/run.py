@@ -1,4 +1,4 @@
-"""Run versioned M1/M2-32/24, M3-24 and M4-12 specifications on new videos."""
+"""Run M1–M4 with 25 uniformly sampled frames per input video."""
 import argparse
 import base64
 import json
@@ -10,19 +10,15 @@ from pathlib import Path
 from statistics import mean
 
 from evaluation import contact, embodiment, goal_action
-from evaluation.common import ROOT, fingerprint, read_jsonl, sha256, write_json, write_jsonl
+from evaluation.common import COVERAGE_METRICS, FRAME_COUNTS, JUDGE_MODELS, PROTOCOL, fingerprint, read_jsonl, sha256, write_json, write_jsonl
 from evaluation.environment import environment_info
 
-PROTOCOL = "release-mixed-spec-v1"
-DEFAULT_MODELS = {"qwen": "qwen3.7-plus", "gemini": "gemini-3.5-flash", "gpt": "gpt-5.4"}
-FRAME_COUNTS = {"M1_M2": 24, "M3": 24, "M4": 12}
+DEFAULT_MODELS = JUDGE_MODELS
 
 
 def frame_counts(record):
-    version = record["annotation"]["annotation_version"]
-    if version not in {"original-source32", "corrected-source32-20260721"}:
-        raise ValueError(f"Unknown annotation protocol: {version}")
-    return {**FRAME_COUNTS, "M1_M2": 32 if version == "original-source32" else 24}
+    # Annotation provenance does not change the evaluation evidence budget.
+    return FRAME_COUNTS.copy()
 
 
 def provider_config(name):
@@ -33,27 +29,13 @@ def provider_config(name):
         base_url=os.getenv(prefix + "_BASE_URL", ""), key_env=prefix + "_API_KEY")
 
 
-def without_annotation_frame_ids(value):
-    if isinstance(value, dict):
-        return {k: without_annotation_frame_ids(v) for k, v in value.items() if k != "source_evidence_frames"}
-    if isinstance(value, list):
-        return [without_annotation_frame_ids(v) for v in value]
-    return value
-
-
 def make_prompts(record):
     ann = goal_action.normalize_annotation(record["annotation"])
-    spec = without_annotation_frame_ids(record["contact"])
-    payload = contact.build_case_payload(spec, record)
-    if frame_counts(record)["M1_M2"] == 32:
-        template = (ROOT / "prompts/judging/M1_M2_32frames_historical_spec.txt").read_text()
-        goal_prompt = template.replace("{case_annotation_json}", json.dumps(
-            goal_action.build_case_annotation_for_prompt(ann), ensure_ascii=False, indent=2))
-    else:
-        goal_prompt = goal_action.build_combined_goal_action_prompt(ann)
+    payload = contact.build_case_payload(record["contact"], record)
     return {
-        "M1_M2": goal_prompt,
-        "M3": contact.build_h2r_contact_prompt(json.dumps(payload, ensure_ascii=False, indent=2), 24),
+        "M1_M2": goal_action.build_combined_goal_action_prompt(ann),
+        "M3": contact.build_h2r_contact_prompt(json.dumps(payload, ensure_ascii=False, indent=2),
+            FRAME_COUNTS["M3"], payload["m3_applicable_subdimensions"]),
         "M4": embodiment.build_embodiment_prompt(record),
     }
 
@@ -61,32 +43,21 @@ def make_prompts(record):
 def validate_and_score(metric, obj, record):
     if metric == "M1_M2":
         ann = goal_action.normalize_annotation(record["annotation"])
-        for field in ("goal_checks", "action_events"):
-            items = obj.get(field)
-            if not isinstance(items, list) or not all(isinstance(x, dict) for x in items):
-                raise ValueError(f"Missing or invalid {field}")
-            ids = [x.get("id") for x in items]
-            if len(ids) != len(set(ids)) or set(ids) != {x["id"] for x in ann[field]}:
-                raise ValueError(f"Missing, duplicate or extra {field} IDs")
-            for item in items:
-                goal_action._coerce_score_0_to_4(item.get("score_0_to_4"))
-        max_frame = frame_counts(record)["M1_M2"]
-        for event in obj["action_events"]:
-            first = event.get("first_frame")
-            if goal_action._coerce_score_0_to_4(event["score_0_to_4"]) > 0 and (type(first) is not int or not 1 <= first <= max_frame):
-                raise ValueError(f"first_frame must be an integer in 1..{max_frame}")
         clean = goal_action.clean_combined_judge_output(ann, obj)
-        return clean, {"M1": goal_action.compute_goal_score(ann, clean)["score"],
-                       "M2": goal_action.compute_action_score(ann, clean)["event_completion_score"]}
+        goal = goal_action.compute_goal_score(ann, clean)
+        action = goal_action.compute_action_score(ann, clean)
+        return clean, {"M1": goal["score"], "M2": action["score"],
+                       "M1_coverage_at_3": goal["goal_coverage_at_3"],
+                       "M1_coverage_at_4": goal["goal_coverage_at_4"],
+                       "M2_coverage_at_3": action["event_coverage_at_3"],
+                       "M2_coverage_at_4": action["event_coverage_at_4"]}
     if metric == "M3":
         if not isinstance(obj.get("source_grounding_hard_failure"), dict) or type(obj["source_grounding_hard_failure"].get("triggered")) is not bool:
             raise ValueError("Missing source-grounding decision")
-        clean = contact.validate_h2r_contact_output(obj, 24)
-        return clean, {"M3": contact.compute_provider_h2r_score(clean)["score"]}
+        dimensions = contact.applicable_dimensions(record["contact"])
+        clean = contact.validate_h2r_contact_output(obj, FRAME_COUNTS["M3"], dimensions)
+        return clean, {"M3": contact.compute_provider_h2r_score(clean, dimensions)["score"]}
     clean = embodiment.validate_embodiment_output(obj)
-    for item in clean["embodiment_correctness"].values():
-        if any(f > 12 for f in item["evidence_generated_frames"]):
-            raise ValueError("M4 frame references must be in 1..12")
     return clean, {"M4": embodiment.compute_provider_embodiment_score(clean, record["target_embodiment"])["score"]}
 
 
@@ -192,7 +163,9 @@ def judge_record(record, providers, output_dir, retries=3, timeout=180):
         generated_video_sha256=media_hashes["generated_video"],
         frame_counts=counts,
         annotation_version=record["annotation"]["annotation_version"], providers=results,
-        **{m: mean(v[m] for v in results.values()) for m in ("M1", "M2", "M3", "M4")})
+        judge_models={config["name"]: config["model"] for config in providers},
+        temperature=0,
+        **{m: mean(v[m] for v in results.values()) for m in ("M1", "M2", "M3", "M4", *COVERAGE_METRICS)})
 
 
 def load_manifest(path):
@@ -237,7 +210,7 @@ def main():
         for r in rows:
             make_prompts(r)
         print(json.dumps(dict(cases=len(rows), protocol=PROTOCOL,
-            frame_profiles=[dict(frames=n, cases=sum(frame_counts(r)["M1_M2"] == n for r in rows)) for n in (32, 24)],
+            frame_counts=FRAME_COUNTS,
             providers=providers, first_case=rows[0]["id"], prompts=make_prompts(rows[0])), indent=2))
         return
     for c in providers:
@@ -248,7 +221,7 @@ def main():
             if not Path(r[field]).is_file():
                 raise FileNotFoundError(r[field])
     write_json(args.output_dir / "run_config.json", dict(protocol=PROTOCOL, providers=providers,
-        frame_profiles=[dict(frames=n, cases=sum(frame_counts(r)["M1_M2"] == n for r in rows)) for n in (32, 24)],
+        frame_counts=FRAME_COUNTS,
         manifest_sha256=sha256(args.manifest),
         environment=environment_info(), max_attempts=args.retries, temperature=0))
     completed = []

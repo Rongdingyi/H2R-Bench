@@ -1,10 +1,11 @@
-"""Preserved metric/prompt functions from h2r-bench-eval/src/h2r_eval/embodiment_correctness.py."""
+"""Embodiment evaluation adapted from the research evaluator."""
 from __future__ import annotations
 import json
 import re
 from typing import Any, Literal
+from evaluation.common import EVALUATION_FRAME_COUNT, require_evidence, require_reason
 
-PROMPT_VERSION = "embodiment_correctness_v4_5dim_compact_12frames"
+PROMPT_VERSION = "embodiment_correctness_v7_evidence_25frames"
 
 
 DIMENSIONS = [
@@ -28,7 +29,7 @@ DIMENSION_WEIGHTS = {
 VALID_SCORE_VALUES = {0, 1, 2, 3, 4}
 
 
-END_EFFECTOR_TYPES = {"rigid_two_jaw_gripper", "robotic_multi_finger_dexterous_hand", "human_hand_or_skin", "generic_robot_claw_or_tool", "ambiguous_or_occluded", "no_target_robot_visible"}
+END_EFFECTOR_TYPES = {"rigid_two_jaw_gripper", "robotic_multi_finger_dexterous_hand", "human_hand_or_skin", "generic_robot_claw_or_tool", "ambiguous_or_occluded", "no_robot_visible"}
 
 
 DEFAULT_TARGET_DESCRIPTIONS = {
@@ -63,23 +64,26 @@ def build_embodiment_prompt(gen: dict[str, Any]) -> str:
     ref_note = "Robot reference image may be provided; use it only for appearance." if gen.get("robot_reference_image") else "No robot reference image."
     return f"""Evaluate only Embodiment Correctness from sampled generated frames. Ignore task success/action order/contact except robot structural stability.
 
+You will receive {EVALUATION_FRAME_COUNT} uniformly sampled generated frames, including the first and last frame. Use integer evidence indices from 1 to {EVALUATION_FRAME_COUNT}.
+
 Target={target}. {description}
 Rule: {target_rule} {category_rule}
 {ref_note}
 
-Output strict JSON only. Scores are integers 0-4: 0 wrong/absent, 1 weak, 2 partial/wrong subtype, 3 mostly correct, 4 clearly correct.
+Output strict JSON only. Scores are integers 0-4: 0 wrong/absent, 1 weak, 2 partial, 3 mostly correct, 4 clearly correct.
+Each dimension must include a non-empty reason and evidence_generated_frames. Positive scores require at least one cited frame; zero scores may use an empty list with a rationale. If hard_failure is true, explain it in hard_failure_reason.
 Do not treat two-jaw grippers and multi-finger dexterous hands as interchangeable.
 
-Diagnosis observed_end_effector_type must be one of: rigid_two_jaw_gripper, robotic_multi_finger_dexterous_hand, human_hand_or_skin, generic_robot_claw_or_tool, ambiguous_or_occluded, no_target_robot_visible.
+Diagnosis observed_end_effector_type must be one of: rigid_two_jaw_gripper, robotic_multi_finger_dexterous_hand, human_hand_or_skin, generic_robot_claw_or_tool, ambiguous_or_occluded, no_robot_visible.
 
 Score dimensions:
-- target_robot_presence: target robot appears and manipulates.
+- target_robot_presence: a robotic actor is visibly present, irrespective of subtype. A visible dexterous hand receives presence credit even when a parallel-jaw gripper is requested; assess type mismatch separately below.
 - human_absence: no human hand/skin/arm remains.
 - embodiment_category_match: correct broad category.
 - end_effector_correctness: correct end-effector subtype.
 - structural_consistency: robot body/end-effector stay stable over time.
 
-Hard failure: if human hands do main manipulation or no target robot is visible.
+Hard failure: if human hands perform the principal manipulation or no robotic actor is visible. A wrong robot subtype alone is not a hard failure.
 
 Return exactly:
 {{
@@ -145,8 +149,8 @@ def _clean_frame_list(value: Any, field: str) -> list[int]:
                 frame = int(match.group(1))
         else:
             raise ValueError(f"{field} contains invalid frame id {item!r}")
-        if frame < 1 or frame > 32:
-            raise ValueError(f"{field} frame id out of range 1..32: {frame}")
+        if frame < 1 or frame > EVALUATION_FRAME_COUNT:
+            raise ValueError(f"{field} frame id out of range 1..{EVALUATION_FRAME_COUNT}: {frame}")
         out.append(frame)
     return out
 
@@ -188,7 +192,12 @@ def validate_embodiment_output(obj: dict[str, Any]) -> dict[str, Any]:
         item = root.get(dim)
         if not isinstance(item, dict):
             raise ValueError(f"missing dimension object: {dim}")
-        clean_root[dim] = {**item, "score_0_to_4": _coerce_score(item.get("score_0_to_4")), "evidence_generated_frames": _clean_frame_list(item.get("evidence_generated_frames", []), f"{dim}.evidence_generated_frames"), "reason": str(item.get("reason", ""))}
+        score = _coerce_score(item.get("score_0_to_4"))
+        clean_root[dim] = {
+            "score_0_to_4": score,
+            "evidence_generated_frames": require_evidence(item, "evidence_generated_frames", positive=score > 0),
+            "reason": require_reason(item),
+        }
     diagnosis = obj.get("embodiment_diagnosis")
     if not isinstance(diagnosis, dict):
         diagnosis = _infer_diagnosis_from_text(clean_root)
@@ -208,32 +217,20 @@ def validate_embodiment_output(obj: dict[str, Any]) -> dict[str, Any]:
     hard_failure = obj.get("hard_failure")
     if not isinstance(hard_failure, bool):
         raise ValueError("hard_failure must be boolean")
-    return {"embodiment_diagnosis": clean_diagnosis, "embodiment_correctness": clean_root, "hard_failure": hard_failure, "hard_failure_reason": str(obj.get("hard_failure_reason", "")), "overall_reason": str(obj.get("overall_reason", ""))}
+    return {"embodiment_diagnosis": clean_diagnosis, "embodiment_correctness": clean_root, "hard_failure": hard_failure, "hard_failure_reason": require_reason(obj, "hard_failure_reason", allow_empty=not hard_failure), "overall_reason": str(obj.get("overall_reason", ""))}
 
 
 def compute_provider_embodiment_score(clean_obj: dict[str, Any], target_embodiment: str | None = None) -> dict[str, Any]:
     root = clean_obj["embodiment_correctness"]
     diagnosis = clean_obj.get("embodiment_diagnosis", {})
-    observed_type = str(diagnosis.get("observed_end_effector_type", "ambiguous_or_occluded"))
-    target = str(target_embodiment or "")
-    cap_reason = ""
-    if target in {"mechanical_arm", "dual_arm", "two_finger_gripper"} and observed_type != "rigid_two_jaw_gripper":
-        cap_reason = f"score capped because target requires rigid_two_jaw_gripper but observed_end_effector_type={observed_type}"
-    if target == "dexterous_hand" and observed_type != "robotic_multi_finger_dexterous_hand":
-        cap_reason = f"score capped because target requires robotic_multi_finger_dexterous_hand but observed_end_effector_type={observed_type}"
     per_dimension: dict[str, Any] = {}
     normalized = []
     for dim in DIMENSIONS:
         item = root[dim]
         raw_score = int(item["score_0_to_4"])
-        applied_cap = None
-        if cap_reason and dim == "end_effector_correctness":
-            if raw_score > 2:
-                raw_score = 2
-                applied_cap = cap_reason
         norm = raw_score / 4.0
         normalized.append(norm)
-        per_dimension[dim] = {"score_0_to_4": raw_score, "normalized_score": norm, "evidence_generated_frames": item.get("evidence_generated_frames", []), "reason": item.get("reason", ""), "applied_cap": applied_cap}
+        per_dimension[dim] = {"score_0_to_4": raw_score, "normalized_score": norm, "evidence_generated_frames": item.get("evidence_generated_frames", []), "reason": item.get("reason", "")}
     if clean_obj.get("hard_failure"):
         score = 0.0
     else:

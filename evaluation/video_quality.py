@@ -22,10 +22,14 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def clip_quality_components(values):
+    if len(values) != 4 or not all(math.isfinite(v) for v in values):
+        raise ValueError(f'Expected four finite quality scores, got {values}')
+    return [min(1.0, max(0.0, v)) for v in values]
+
+
 def quality_mean(values):
-    if len(values) != 4 or not all(math.isfinite(v) and 0 <= v <= 1 for v in values):
-        raise ValueError(f'Expected four finite normalized scores in [0,1], got {values}')
-    return sum(values)/4
+    return sum(clip_quality_components(values))/4
 
 
 def main():
@@ -93,7 +97,8 @@ def main():
         with torch.no_grad():
             iq, _ = technical_quality(musiq,[str(video)],args.device)
             aq, _ = laion_aesthetic(aesthetic,clip_model,[str(video)],args.device)
-            values = list(map(float,[iq, aq, cal_score(str(video)), motion.motion_score(str(video))]))
+            values = clip_quality_components(list(map(float,
+                [iq, aq, cal_score(str(video)), motion.motion_score(str(video))])))
         done[row['id']] = dict(id=row['id'], video_sha256=video_hash, run_signature=token,
                               completed_at_utc=datetime.now(timezone.utc).isoformat(),
                               **dict(zip(['imaging_quality','aesthetic_quality','temporal_flickering','motion_smoothness'],values)),

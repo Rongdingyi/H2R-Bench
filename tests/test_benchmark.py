@@ -23,11 +23,11 @@ def test_scene_annotation_and_prompt_alignment():
     assert sum(r["annotation_version"] == "corrected-source32-20260721" for r in scenes) == 12
 
 
-def test_prompt_snapshots_match_preserved_builders():
+def test_prompt_snapshots_match_builders():
     p = ROOT / "prompts/judging"
     ann = goal_action.normalize_annotation({'case_id': 'EXAMPLE', 'goal_checks': [], 'action_events': [], 'entities': {}})
     payload = json.dumps(goal_action.build_case_annotation_for_prompt(ann), ensure_ascii=False, indent=2)
-    assert (p / "M1_M2_24frames.txt").read_text().replace("{{CASE_ANNOTATION_JSON}}", payload) == goal_action.build_combined_goal_action_prompt(ann)
-    assert (p / "M3_24frames.txt").read_text() == contact.build_h2r_contact_prompt("{{CONTACT_SPEC_JSON}}", 24)
+    assert (p / "M1_M2_25frames.txt").read_text().replace("{{CASE_ANNOTATION_JSON}}", payload) == goal_action.build_combined_goal_action_prompt(ann)
+    assert (p / "M3_25frames.txt").read_text() == contact.build_h2r_contact_prompt("{{CONTACT_SPEC_JSON}}", 25)
     for target in ("mechanical_arm", "dexterous_hand"):
         assert (p / f"M4_{target}.txt").read_text() == embodiment.build_embodiment_prompt({"target_embodiment": target})

@@ -2,7 +2,7 @@
   "goal_action.py": {
     "research_source": "h2r-bench-eval/src/h2r_eval/goal_action_eval.py",
     "source_sha256": "1d5f01c9b54a67d60248f5022f16919ef79da6b1140040575d670a377e78d498",
-    "preserved_definitions": [
+    "derived_definitions": [
       "MetricName",
       "PROMPT_VERSION",
       "VALID_SCORE_VALUES",
@@ -16,12 +16,13 @@
       "weighted_mean",
       "compute_goal_score",
       "compute_action_score"
-    ]
+    ],
+    "adaptation": "25-frame evaluation; canonical scene families; required-event completion and coverage without action-order scoring. Evidence indices and textual rationales are validated and preserved."
   },
   "contact.py": {
     "research_source": "h2r-bench-eval/scripts/evaluate_h2r_contact_v2.py",
     "source_sha256": "89c19b033a41fa352d5c9b730063c04131c262ded4a3cab41700b5dae7f41426",
-    "preserved_definitions": [
+    "derived_definitions": [
       "PROMPT_VERSION",
       "DIMENSIONS",
       "VALID_SCORE_VALUES",
@@ -32,12 +33,13 @@
       "_clean_frame_list",
       "validate_h2r_contact_output",
       "compute_provider_h2r_score"
-    ]
+    ],
+    "adaptation": "25-frame evaluation; annotation-defined applicability and support roles; source-frame references removed from judge inputs; visual-temporal object-response evidence. Evidence indices and textual rationales are validated and preserved."
   },
   "embodiment.py": {
     "research_source": "h2r-bench-eval/src/h2r_eval/embodiment_correctness.py",
     "source_sha256": "dfce89e9ff051ab6b204335c863ccc6e1723de3ef441ccc2caac558b6484e48b",
-    "preserved_definitions": [
+    "derived_definitions": [
       "PROMPT_VERSION",
       "DIMENSIONS",
       "DIMENSION_WEIGHTS",
@@ -51,6 +53,7 @@
       "_infer_diagnosis_from_text",
       "validate_embodiment_output",
       "compute_provider_embodiment_score"
-    ]
+    ],
+    "adaptation": "25-frame evaluation; robot presence independent of subtype; paper weighted sum and judge-marked hard failure without subtype caps. Evidence indices and textual rationales are validated and preserved."
   }
 }

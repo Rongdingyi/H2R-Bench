@@ -1,16 +1,22 @@
-"""Preserved metric/prompt functions from h2r-bench-eval/src/h2r_eval/goal_action_eval.py."""
+"""Goal and action evaluation adapted from the research evaluator."""
 from __future__ import annotations
 import json
 import re
 from typing import Any, Literal
+from evaluation.common import EVALUATION_FRAME_COUNT, benchmark_family, require_evidence, require_reason
 
 MetricName = Literal["goal", "action"]
 
 
-PROMPT_VERSION = "goal_action_v5_24frames_final6"
+PROMPT_VERSION = "goal_action_v8_evidence_25frames"
 
 
 VALID_SCORE_VALUES = {0, 1, 2, 3, 4}
+
+
+def required_action_events(annotation):
+    return [event for event in annotation.get("action_events", [])
+            if event.get("required", True)]
 
 
 def normalize_annotation(record: dict[str, Any]) -> dict[str, Any]:
@@ -25,6 +31,7 @@ def normalize_annotation(record: dict[str, Any]) -> dict[str, Any]:
     entities = record.get("entities") or {}
     normalized = dict(record)
     normalized["case_id"] = str(record["case_id"])
+    normalized["family"] = benchmark_family(record)
     normalized["task_description"] = (
         record.get("task_description")
         or record.get("source_description")
@@ -51,6 +58,7 @@ def normalize_annotation(record: dict[str, Any]) -> dict[str, Any]:
             "weight": float(item.get("weight", 1.0)),
         }
         for i, item in enumerate(record.get("action_events", []))
+        if item.get("required", True)
     ]
     normalized["action_order"] = [
         [str(pair[0]), str(pair[1])]
@@ -63,7 +71,7 @@ def normalize_annotation(record: dict[str, Any]) -> dict[str, Any]:
 def build_case_annotation_for_prompt(annotation: dict[str, Any], metric: MetricName | None = None) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "case_id": annotation["case_id"],
-        "family": annotation.get("family"),
+        "family": benchmark_family(annotation),
         "task_name": annotation.get("task_name"),
         "task_description": annotation.get("task_description", ""),
         "entities": annotation.get("entities", {}),
@@ -71,8 +79,7 @@ def build_case_annotation_for_prompt(annotation: dict[str, Any], metric: MetricN
     if metric in {None, "goal"}:
         payload["goal_checks"] = annotation.get("goal_checks", [])
     if metric in {None, "action"}:
-        payload["action_events"] = annotation.get("action_events", [])
-        payload["action_order"] = annotation.get("action_order", [])
+        payload["action_events"] = required_action_events(annotation)
     return payload
 
 
@@ -83,10 +90,10 @@ def build_judge_prompt(annotation: dict[str, Any], metric: MetricName = "goal") 
         indent=2,
     )
     if metric == "goal":
-        frame_notice = "You will receive only frames 19--24 from a 24-frame uniform sampling of a 4--5 second generated video. These are the final-state frames used for Goal-State Completion."
+        frame_notice = f"You will receive {EVALUATION_FRAME_COUNT} uniformly sampled frames from the generated video, including the first and last frame. Frame indices are from 1 to {EVALUATION_FRAME_COUNT}. Judge the final state using the end of the sequence, with earlier frames providing context."
         id_notice = "You must evaluate all goal_check ids from the case annotation."
     else:
-        frame_notice = "You will receive all 24 uniformly sampled frames from a 4--5 second generated video. Frame indices are from 1 to 24, including the first and last frame."
+        frame_notice = f"You will receive {EVALUATION_FRAME_COUNT} uniformly sampled frames from the generated video. Frame indices are from 1 to {EVALUATION_FRAME_COUNT}, including the first and last frame."
         id_notice = "You must evaluate all action_event ids from the case annotation."
     shared = f"""You are evaluating a generated robot manipulation video for H2R-Bench.
 
@@ -97,18 +104,18 @@ You will also receive a case annotation derived from the source human demonstrat
 Important rules:
 
 1. Output strict JSON only.
-2. Do not output Markdown or explanations outside JSON.
-3. For Goal-State Completion, only use frames 19--24.
-4. For Action-Structure Alignment, use all frames 1--24.
+2. Do not output Markdown or explanations outside JSON. Every item must include a non-empty reason and evidence_generated_frames with integer indices in 1..{EVALUATION_FRAME_COUNT}. Cite at least one frame for positive scores; for zero scores, an empty list is allowed if the reason explains absent evidence.
+3. For Goal-State Completion, judge the state at the end of the sequence; use preceding frames as context to determine whether it was reached and preserved.
+4. For Action-Event Completion, use all frames 1--{EVALUATION_FRAME_COUNT}.
 5. Goal-State Completion evaluates only annotation-defined final-state predicates, not the process.
-6. Action-Structure Alignment evaluates only annotation-defined action events and their temporal order, not whether the final state is achieved.
+6. Action-Event Completion evaluates only annotation-defined action event completion, not whether the final state is achieved.
 7. Do not evaluate affordance/contact transfer quality here; that belongs to M3 unless missing contact makes an annotated action event impossible to judge.
 8. Do not evaluate embodiment correctness here; wrong robot type, human-hand residue, or robot morphology errors belong to M4 unless they directly make the goal state or action event impossible to judge.
 9. Do not evaluate visual fidelity, blur, flicker, or aesthetic quality here; that belongs to M5 unless the video is impossible to judge.
 10. The word "actor" refers to the visible manipulating agent in the generated video, usually the target robot.
 11. {id_notice}
 12. Do not add new ids. Do not omit existing ids.
-13. Do not output aggregate metric names such as goal_predicate_score, event_completion_score, ordered_event_score, or coverage. These are computed outside this prompt from your per-id scores.
+13. Do not output aggregate metric names such as goal_predicate_score, event_completion_score, or coverage. These are computed outside this prompt from your per-id scores.
 
 Scoring rule:
 
@@ -136,7 +143,7 @@ Do not use 2 or 3 as a default compromise. Choose the score according to visible
         return f"""{shared}
 Goal-State Completion:
 
-For each goal_check, judge whether the final state is achieved using only frames 19--24.
+For each goal_check, judge whether the final state is achieved at the end of the sequence, using preceding frames as context to determine whether it was reached and preserved.
 
 A goal_check score means:
 
@@ -146,7 +153,7 @@ A goal_check score means:
 3 = The final state is mostly achieved, but there are minor issues such as slight instability, partial occlusion, unclear placement, small spill, slight deformation, or visual ambiguity.
 4 = The final state is clearly achieved and visually stable, with no obvious failure.
 
-Do not judge the intermediate process when scoring goal_checks. Only judge the final state.
+Score the final state, using earlier frames only as supporting context.
 
 Case annotation:
 {case_annotation_json}
@@ -158,15 +165,16 @@ Return JSON in this exact schema:
     {{
       "id": "g1",
       "score_0_to_4": 0,
+      "evidence_generated_frames": [],
       "reason": ""
     }}
   ]
 }}
 """
     return f"""{shared}
-Action-Structure Alignment:
+Action-Event Completion:
 
-For each action_event, judge whether the event occurs using all frames 1--24.
+For each action_event, judge whether the event occurs using all frames 1--{EVALUATION_FRAME_COUNT}.
 
 An action_event score means:
 
@@ -177,7 +185,7 @@ An action_event score means:
 4 = The event clearly and completely occurs.
 
 For each action_event, also output first_frame:
-- if score_0_to_4 > 0, first_frame must be an integer from 1 to 24 indicating the earliest sampled frame where the event starts to be visible;
+- if score_0_to_4 > 0, first_frame must be an integer from 1 to {EVALUATION_FRAME_COUNT} indicating the earliest sampled frame where the event starts to be visible;
 - if score_0_to_4 = 0, first_frame must be null.
 
 Case annotation:
@@ -190,6 +198,7 @@ Return JSON in this exact schema:
     {{
       "id": "e1",
       "score_0_to_4": 0,
+      "evidence_generated_frames": [],
       "first_frame": null,
       "reason": ""
     }}
@@ -206,25 +215,25 @@ def build_combined_goal_action_prompt(annotation: dict[str, Any]) -> str:
     )
     return f"""You are evaluating a generated robot manipulation video for H2R-Bench.
 
-You will receive 24 uniformly sampled frames from a 4--5 second generated video. Frame indices are from 1 to 24, including the first and last frame.
+You will receive {EVALUATION_FRAME_COUNT} uniformly sampled frames from the generated video. Frame indices are from 1 to {EVALUATION_FRAME_COUNT}, including the first and last frame.
 
 You will also receive a case annotation derived from the source human demonstration. The annotation defines the task goal and required action structure. Your job is to evaluate the generated video only. Do not evaluate the source video.
 
 Important rules:
 
 1. Output strict JSON only.
-2. Do not output Markdown or explanations outside JSON.
-3. For Goal-State Completion, only use frames 19--24.
-4. For Action-Structure Alignment, use all frames 1--24.
+2. Do not output Markdown or explanations outside JSON. Every item must include a non-empty reason and evidence_generated_frames with integer indices in 1..{EVALUATION_FRAME_COUNT}. Cite at least one frame for positive scores; for zero scores, an empty list is allowed if the reason explains absent evidence.
+3. For Goal-State Completion, judge the state at the end of the sequence; use preceding frames as context to determine whether it was reached and preserved.
+4. For Action-Event Completion, use all frames 1--{EVALUATION_FRAME_COUNT}.
 5. Goal-State Completion evaluates only annotation-defined final-state predicates, not the process.
-6. Action-Structure Alignment evaluates only annotation-defined action events and their temporal order, not whether the final state is achieved.
+6. Action-Event Completion evaluates only annotation-defined action event completion, not whether the final state is achieved.
 7. Do not evaluate affordance/contact transfer quality here; that belongs to M3 unless missing contact makes an annotated action event impossible to judge.
 8. Do not evaluate embodiment correctness here; wrong robot type, human-hand residue, or robot morphology errors belong to M4 unless they directly make the goal state or action event impossible to judge.
 9. Do not evaluate visual fidelity, blur, flicker, or aesthetic quality here; that belongs to M5 unless the video is impossible to judge.
 10. The word "actor" refers to the visible manipulating agent in the generated video, usually the target robot.
 11. You must evaluate all goal_check ids and all action_event ids from the case annotation.
 12. Do not add new ids. Do not omit existing ids.
-13. Do not output aggregate metric names such as goal_predicate_score, event_completion_score, ordered_event_score, or coverage. These are computed outside this prompt from your per-id scores.
+13. Do not output aggregate metric names such as goal_predicate_score, event_completion_score, or coverage. These are computed outside this prompt from your per-id scores.
 
 Scoring rule:
 
@@ -250,16 +259,16 @@ Do not use 2 or 3 as a default compromise. Choose the score according to visible
 
 Goal-State Completion:
 
-For each goal_check, judge whether the final state predicate is achieved using only frames 19--24.
-Do not judge the intermediate process when scoring goal_checks. Only judge the final state.
+For each goal_check, judge whether the final state predicate is achieved at the end of the sequence, using preceding frames as context to determine whether it was reached and preserved.
+Score the final state, using earlier frames only as supporting context.
 If the final state is partially occluded but still inferable, score according to visible evidence and mention the ambiguity in reason.
 
-Action-Structure Alignment:
+Action-Event Completion:
 
-For each action_event, judge whether the annotated event occurs using all frames 1--24.
+For each action_event, judge whether the annotated event occurs using all frames 1--{EVALUATION_FRAME_COUNT}.
 Score event occurrence only; do not require final success.
 For each action_event, also output first_frame:
-- if score_0_to_4 > 0, first_frame must be an integer from 1 to 24 indicating the earliest sampled frame where the event starts to be visible;
+- if score_0_to_4 > 0, first_frame must be an integer from 1 to {EVALUATION_FRAME_COUNT} indicating the earliest sampled frame where the event starts to be visible;
 - if score_0_to_4 = 0, first_frame must be null.
 
 Case annotation:
@@ -272,6 +281,7 @@ Return JSON in this exact schema:
     {{
       "id": "g1",
       "score_0_to_4": 0,
+      "evidence_generated_frames": [],
       "reason": ""
     }}
   ],
@@ -279,6 +289,7 @@ Return JSON in this exact schema:
     {{
       "id": "e1",
       "score_0_to_4": 0,
+      "evidence_generated_frames": [],
       "first_frame": null,
       "reason": ""
     }}
@@ -306,62 +317,32 @@ def _coerce_score_0_to_4(value: Any) -> int:
 def clean_judge_output(annotation: dict[str, Any], output: dict[str, Any], metric: MetricName = "goal") -> dict[str, Any]:
     if not isinstance(output, dict):
         raise ValueError("judge output must be a JSON object")
-    if metric == "goal":
-        raw_goals = output.get("goal_checks")
-        if not isinstance(raw_goals, list):
-            raise ValueError("goal judge output must contain list field goal_checks")
-        goal_by_id = {str(x.get("id")): x for x in raw_goals if isinstance(x, dict) and "id" in x}
-        clean_goals = []
-        for goal in annotation.get("goal_checks", []):
-            goal_id = goal["id"]
-            item = goal_by_id.get(goal_id)
-            if item is None:
-                clean_goals.append({"id": goal_id, "score_0_to_4": 0, "reason": "missing id in judge output"})
-                continue
-            clean_goals.append(
-                {
-                    "id": goal_id,
-                    "score_0_to_4": _coerce_score_0_to_4(item.get("score_0_to_4", 0)),
-                    "reason": str(item.get("reason", "")),
-                }
-            )
-        return {"goal_checks": clean_goals}
-
-    raw_events = output.get("action_events")
-    if not isinstance(raw_events, list):
-        raise ValueError("action judge output must contain list field action_events")
-    event_by_id = {str(x.get("id")): x for x in raw_events if isinstance(x, dict) and "id" in x}
-    clean_events = []
-    for event in annotation.get("action_events", []):
-        event_id = event["id"]
-        item = event_by_id.get(event_id)
-        if item is None:
-            clean_events.append(
-                {
-                    "id": event_id,
-                    "score_0_to_4": 0,
-                    "first_frame": None,
-                    "reason": "missing id in judge output",
-                }
-            )
-            continue
-        score = _coerce_score_0_to_4(item.get("score_0_to_4", 0))
-        first_frame = item.get("first_frame")
-        if score > 0:
-            if not isinstance(first_frame, int) or first_frame < 1 or first_frame > 32:
-                raise ValueError(f"event {event_id}: first_frame must be integer 1..32 when score_0_to_4 > 0")
-        else:
-            if first_frame is not None:
-                raise ValueError(f"event {event_id}: first_frame must be null when score_0_to_4 = 0")
-        clean_events.append(
-            {
-                "id": event_id,
-                "score_0_to_4": score,
-                "first_frame": first_frame,
-                "reason": str(item.get("reason", "")),
-            }
-        )
-    return {"action_events": clean_events}
+    field = "goal_checks" if metric == "goal" else "action_events"
+    expected = annotation.get("goal_checks", []) if metric == "goal" else required_action_events(annotation)
+    items = output.get(field)
+    if not isinstance(items, list) or not all(isinstance(item, dict) for item in items):
+        raise ValueError(f"Missing or invalid {field}")
+    ids = [item.get("id") for item in items]
+    if not all(isinstance(id_, str) for id_ in ids) or len(ids) != len(set(ids)) or set(ids) != {item["id"] for item in expected}:
+        raise ValueError(f"Missing, duplicate or extra {field} IDs")
+    by_id = {item["id"]: item for item in items}
+    cleaned = []
+    for definition in expected:
+        item = by_id[definition["id"]]
+        score = _coerce_score_0_to_4(item.get("score_0_to_4"))
+        frames = require_evidence(item, "evidence_generated_frames", positive=score > 0)
+        result = dict(id=definition["id"], score_0_to_4=score,
+                      evidence_generated_frames=frames, reason=require_reason(item))
+        if metric == "action":
+            first = item.get("first_frame")
+            if score > 0:
+                if type(first) is not int or not 1 <= first <= EVALUATION_FRAME_COUNT:
+                    raise ValueError(f"first_frame must be integer 1..{EVALUATION_FRAME_COUNT}")
+            elif first is not None:
+                raise ValueError("first_frame must be null for a zero score")
+            result["first_frame"] = first
+        cleaned.append(result)
+    return {field: cleaned}
 
 
 def clean_combined_judge_output(annotation: dict[str, Any], output: dict[str, Any]) -> dict[str, Any]:
@@ -402,6 +383,7 @@ def compute_goal_score(annotation: dict[str, Any], judge_output: dict[str, Any])
                 "score_0_to_4": raw,
                 "normalized_score": raw / 4.0,
                 "reason": str(out.get("reason", "")),
+                "evidence_generated_frames": out.get("evidence_generated_frames", []),
             }
         )
     goal_predicate_score = weighted_mean(annotation.get("goal_checks", []), norm_by_id)
@@ -418,6 +400,7 @@ def compute_goal_score(annotation: dict[str, Any], judge_output: dict[str, Any])
 
 
 def compute_action_score(annotation: dict[str, Any], judge_output: dict[str, Any]) -> dict[str, Any]:
+    events = required_action_events(annotation)
     event_outputs = {x["id"]: x for x in judge_output.get("action_events", [])}
     raw_by_id = {k: int(v.get("score_0_to_4", 0)) for k, v in event_outputs.items()}
     completion_by_id = {k: v / 4.0 for k, v in raw_by_id.items()}
@@ -425,7 +408,7 @@ def compute_action_score(annotation: dict[str, Any], judge_output: dict[str, Any
     coverage_at_4_by_id = {k: 1.0 if v == 4 else 0.0 for k, v in raw_by_id.items()}
     first_frame_by_id = {k: v.get("first_frame") for k, v in event_outputs.items()}
     per_event = []
-    for item in annotation.get("action_events", []):
+    for item in events:
         event_id = item["id"]
         raw = int(raw_by_id.get(event_id, 0))
         out = event_outputs.get(event_id, {})
@@ -437,55 +420,26 @@ def compute_action_score(annotation: dict[str, Any], judge_output: dict[str, Any
                 "completion": raw / 4.0,
                 "first_frame": first_frame_by_id.get(event_id),
                 "reason": str(out.get("reason", "")),
+                "evidence_generated_frames": out.get("evidence_generated_frames", []),
             }
         )
 
-    event_completion = weighted_mean(annotation.get("action_events", []), completion_by_id)
+    event_completion = weighted_mean(events, completion_by_id)
     if event_completion is None:
         event_completion = 0.0
-    event_coverage_at_3 = weighted_mean(annotation.get("action_events", []), coverage_at_3_by_id)
+    event_coverage_at_3 = weighted_mean(events, coverage_at_3_by_id)
     if event_coverage_at_3 is None:
         event_coverage_at_3 = 0.0
-    event_coverage_at_4 = weighted_mean(annotation.get("action_events", []), coverage_at_4_by_id)
+    event_coverage_at_4 = weighted_mean(events, coverage_at_4_by_id)
     if event_coverage_at_4 is None:
         event_coverage_at_4 = 0.0
 
-    order_pairs = annotation.get("action_order", [])
-    per_order = []
-    if order_pairs:
-        for before_id, after_id in order_pairs:
-            y_before = float(completion_by_id.get(before_id, 0.0))
-            y_after = float(completion_by_id.get(after_id, 0.0))
-            f_before = first_frame_by_id.get(before_id)
-            f_after = first_frame_by_id.get(after_id)
-            if isinstance(f_before, int) and isinstance(f_after, int) and f_before < f_after:
-                score = min(y_before, y_after)
-            else:
-                score = 0.0
-            per_order.append(
-                {
-                    "before": before_id,
-                    "after": after_id,
-                    "score": score,
-                    "before_first_frame": f_before,
-                    "after_first_frame": f_after,
-                }
-            )
-        order_score = sum(x["score"] for x in per_order) / len(per_order)
-    else:
-        order_score = 1.0
-
-    action_score = 0.5 * event_completion + 0.5 * order_score
     return {
-        "score": action_score,
+        "score": event_completion,
         "event_completion": event_completion,
         "event_completion_score": event_completion,
-        "order_score": order_score,
-        "ordered_event_score": order_score,
         "event_coverage_at_3": event_coverage_at_3,
         "event_coverage_at_4": event_coverage_at_4,
         "per_event": per_event,
         "per_action_event_scores": per_event,
-        "per_order": per_order,
-        "per_order_edge_scores": per_order,
     }
